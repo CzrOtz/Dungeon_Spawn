@@ -34,6 +34,9 @@ public class ghostScript : MonoBehaviour
     public AudioClip ghostDieSound;  // Sound for throwing the spear
     public AudioSource audioSource;    // AudioSource component assigned via the Inspector
 
+    public float explosionRadius = 15f; // Radius of the explosion
+    public float explosionForce = 55f; // Force of the explosion
+
     // Initialize method to set ghost's attributes from the spawner
     public void Initialize(float initialSpeed, float initialHealth, float initialDamage)
     {
@@ -207,6 +210,8 @@ public class ghostScript : MonoBehaviour
             deathParticles.Play();
         }
 
+        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce);
+
         // Handle other death logic
         killCounter.IncreaseKillCount();
         enemiesOnScreen.Subtract();
@@ -284,6 +289,25 @@ void DeadShake()
     // Custom velocity for DeadShake impulse
     Vector3 deadImpulseVelocity = new Vector3(-0.5f, -0.5f, 0f);
     GenerateImpulseWithCustomVelocity(deadImpulseVelocity);
+}
+
+void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce)
+{
+    // Detect all enemies within the explosion radius
+    Collider2D[] enemies = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
+
+    foreach (Collider2D enemy in enemies)
+    {
+        Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
+        if (rb != null && enemy.gameObject != this.gameObject) // Ensure it doesn't affect itself
+        {
+            // Calculate the direction from the explosion to the enemy
+            Vector2 direction = (rb.position - explosionPosition).normalized;
+
+            // Apply force to the enemy's Rigidbody2D
+            rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
+        }
+    }
 }
 
 void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)

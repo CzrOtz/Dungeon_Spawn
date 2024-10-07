@@ -32,6 +32,9 @@ public class crabScript : MonoBehaviour
 
     private CinemachineImpulseSource impulseSource;
 
+    public float explosionRadius = 12f; // Radius of the explosion
+    public float explosionForce = 55f; // Force of the explosion
+
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
     {
         speed = initialSpeed;
@@ -197,6 +200,8 @@ public class crabScript : MonoBehaviour
             deathParticles.Play();
         }
 
+        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce);
+
         // Make the crab invisible
         spriteRenderer.color = Color.clear;
 
@@ -246,6 +251,25 @@ void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
     else
     {
         Debug.LogError("CinemachineImpulseSource not found on the object.");
+    }
+}
+
+void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce)
+{
+    // Detect all enemies within the explosion radius
+    Collider2D[] enemies = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
+
+    foreach (Collider2D enemy in enemies)
+    {
+        Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
+        if (rb != null && enemy.gameObject != this.gameObject) // Ensure it doesn't affect itself
+        {
+            // Calculate the direction from the explosion to the enemy
+            Vector2 direction = (rb.position - explosionPosition).normalized;
+
+            // Apply force to the enemy's Rigidbody2D
+            rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
+        }
     }
 }
 

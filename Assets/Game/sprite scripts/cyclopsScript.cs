@@ -24,6 +24,8 @@ public class cyclopsScript : MonoBehaviour
     public AudioClip cyDieSound;  
     public AudioSource audioSource; 
 
+    public float explosionRadius = 50f; // Radius of the explosion
+    public float explosionForce = 200f; // Force of the explosion
     
     private CinemachineImpulseSource impulseSource;
 
@@ -192,6 +194,8 @@ public class cyclopsScript : MonoBehaviour
             deathParticles.Play();
         }
 
+        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce);
+
         // Handle other death logic
         killCounter.IncreaseKillCount();
         enemiesOnScreen.Subtract();
@@ -219,7 +223,7 @@ public class cyclopsScript : MonoBehaviour
 void AliveShake()
 {
     // Custom velocity for AliveShake impulse
-    Vector3 aliveImpulseVelocity = new Vector3(-0.15f, -0.15f, 0f);
+    Vector3 aliveImpulseVelocity = new Vector3(-0.12f, -0.12f, 0f);
     GenerateImpulseWithCustomVelocity(aliveImpulseVelocity);
 }
 
@@ -243,6 +247,26 @@ void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
         Debug.LogError("CinemachineImpulseSource not found on the object.");
     }
 }
+
+void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce)
+{
+    // Detect all enemies within the explosion radius
+    Collider2D[] enemies = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
+
+    foreach (Collider2D enemy in enemies)
+    {
+        Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
+        if (rb != null && enemy.gameObject != this.gameObject) // Ensure it doesn't affect itself
+        {
+            // Calculate the direction from the explosion to the enemy
+            Vector2 direction = (rb.position - explosionPosition).normalized;
+
+            // Apply force to the enemy's Rigidbody2D
+            rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
+        }
+    }
+}
+
     void DisableColliders()
     {
         Collider2D[] colliders = GetComponents<Collider2D>();
