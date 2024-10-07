@@ -37,6 +37,9 @@ public class ghostScript : MonoBehaviour
     public float explosionRadius = 15f; // Radius of the explosion
     public float explosionForce = 55f; // Force of the explosion
 
+    public float aliveShakeIntensity = -0.13f;
+    public float deadShakeIntensity = -0.5f;
+
     // Initialize method to set ghost's attributes from the spawner
     public void Initialize(float initialSpeed, float initialHealth, float initialDamage)
     {
@@ -280,14 +283,14 @@ public class ghostScript : MonoBehaviour
 void AliveShake()
 {
     // Custom velocity for AliveShake impulse
-    Vector3 aliveImpulseVelocity = new Vector3(-0.13f, -0.13f, 0f);
+    Vector3 aliveImpulseVelocity = new Vector3(aliveShakeIntensity, aliveShakeIntensity, 0f);
     GenerateImpulseWithCustomVelocity(aliveImpulseVelocity);
 }
 
 void DeadShake()
 {
     // Custom velocity for DeadShake impulse
-    Vector3 deadImpulseVelocity = new Vector3(-0.5f, -0.5f, 0f);
+    Vector3 deadImpulseVelocity = new Vector3(deadShakeIntensity, deadShakeIntensity, 0f);
     GenerateImpulseWithCustomVelocity(deadImpulseVelocity);
 }
 

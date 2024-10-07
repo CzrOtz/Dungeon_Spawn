@@ -35,6 +35,9 @@ public class cyclopsScript : MonoBehaviour
     // Reference to the death particles
     private ParticleSystem deathParticles;
 
+    public float deadShakeIntensity = -0.7f;
+    public float aliveShakeIntensity = -0.12f;
+
     // Method to initialize cyclops values from the spawner
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
     {
@@ -223,14 +226,14 @@ public class cyclopsScript : MonoBehaviour
 void AliveShake()
 {
     // Custom velocity for AliveShake impulse
-    Vector3 aliveImpulseVelocity = new Vector3(-0.12f, -0.12f, 0f);
+    Vector3 aliveImpulseVelocity = new Vector3(aliveShakeIntensity, aliveShakeIntensity, 0f);
     GenerateImpulseWithCustomVelocity(aliveImpulseVelocity);
 }
 
 void DeadShake()
 {
     // Custom velocity for DeadShake impulse
-    Vector3 deadImpulseVelocity = new Vector3(-0.7f, -0.7f, 0f);
+    Vector3 deadImpulseVelocity = new Vector3(deadShakeIntensity, deadShakeIntensity, 0f);
     GenerateImpulseWithCustomVelocity(deadImpulseVelocity);
 }
 
