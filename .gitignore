@@ -24,3 +24,26 @@
 # OS-specific exclusions
 .DS_Store
 Thumbs.db
+
+# Exclude specific file types
+*.wav
+*.meta
+*.png
+*.ttf
+*.asset
+*.unity
+*.jpg
+*.shader
+*.json
+*.settings
+*.dwlt
+*.txt
+*.prefab
+*.mat
+*.pdf
+*.psd
+*.cginc
+*.tss
+*.spriteatlasv2
+*.index
+
