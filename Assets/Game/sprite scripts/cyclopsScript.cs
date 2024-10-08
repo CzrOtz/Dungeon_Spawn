@@ -26,6 +26,9 @@ public class cyclopsScript : MonoBehaviour
 
     public float explosionRadius = 50f; // Radius of the explosion
     public float explosionForce = 200f; // Force of the explosion
+
+    public float damageRadius = 35f; // How far the damage can reach
+    public float explosionDamage = 100f; // How much damage the explosion causes
     
     private CinemachineImpulseSource impulseSource;
 
@@ -37,6 +40,8 @@ public class cyclopsScript : MonoBehaviour
 
     public float deadShakeIntensity = -0.7f;
     public float aliveShakeIntensity = -0.12f;
+
+    
 
     // Method to initialize cyclops values from the spawner
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
@@ -197,7 +202,7 @@ public class cyclopsScript : MonoBehaviour
             deathParticles.Play();
         }
 
-        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce);
+        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce, explosionDamage, damageRadius);
 
         // Handle other death logic
         killCounter.IncreaseKillCount();
@@ -223,52 +228,74 @@ public class cyclopsScript : MonoBehaviour
         }
     }
 
-void AliveShake()
-{
-    // Custom velocity for AliveShake impulse
-    Vector3 aliveImpulseVelocity = new Vector3(aliveShakeIntensity, aliveShakeIntensity, 0f);
-    GenerateImpulseWithCustomVelocity(aliveImpulseVelocity);
-}
-
-void DeadShake()
-{
-    // Custom velocity for DeadShake impulse
-    Vector3 deadImpulseVelocity = new Vector3(deadShakeIntensity, deadShakeIntensity, 0f);
-    GenerateImpulseWithCustomVelocity(deadImpulseVelocity);
-}
-
-void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
-{
-    if (impulseSource != null)
+    void AliveShake()
     {
-        // Set the custom velocity for the impulse and generate it
-        impulseSource.m_DefaultVelocity = customVelocity;
-        impulseSource.GenerateImpulse();
+        // Custom velocity for AliveShake impulse
+        Vector3 aliveImpulseVelocity = new Vector3(aliveShakeIntensity, aliveShakeIntensity, 0f);
+        GenerateImpulseWithCustomVelocity(aliveImpulseVelocity);
     }
-    else
+
+    void DeadShake()
     {
-        Debug.LogError("CinemachineImpulseSource not found on the object.");
+        // Custom velocity for DeadShake impulse
+        Vector3 deadImpulseVelocity = new Vector3(deadShakeIntensity, deadShakeIntensity, 0f);
+        GenerateImpulseWithCustomVelocity(deadImpulseVelocity);
     }
-}
 
-void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce)
-{
-    // Detect all enemies within the explosion radius
-    Collider2D[] enemies = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
-
-    foreach (Collider2D enemy in enemies)
+    void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
     {
-        Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
-        if (rb != null && enemy.gameObject != this.gameObject) // Ensure it doesn't affect itself
+        if (impulseSource != null)
         {
-            // Calculate the direction from the explosion to the enemy
-            Vector2 direction = (rb.position - explosionPosition).normalized;
-
-            // Apply force to the enemy's Rigidbody2D
-            rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
+            // Set the custom velocity for the impulse and generate it
+            impulseSource.m_DefaultVelocity = customVelocity;
+            impulseSource.GenerateImpulse();
+        }
+        else
+        {
+            Debug.LogError("CinemachineImpulseSource not found on the object.");
         }
     }
-}
+
+    void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce, float damageRadius, float explosionDamage)
+    {
+        // Apply explosion force to enemies within the explosionRadius
+        Collider2D[] enemiesForForce = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
+
+        foreach (Collider2D enemy in enemiesForForce)
+        {
+            // Ensure the enemy has a Rigidbody2D and isn't the current exploding enemy
+            Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
+            if (rb != null && enemy.gameObject != this.gameObject)
+            {
+                // Apply explosion force to the enemy's Rigidbody2D
+                Vector2 direction = (rb.position - explosionPosition).normalized;
+                rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
+            }
+        }
+
+        // Apply damage to enemies within the damageRadius
+        Collider2D[] enemiesForDamage = Physics2D.OverlapCircleAll(explosionPosition, damageRadius);
+
+        foreach (Collider2D enemy in enemiesForDamage)
+        {
+            if (enemy.gameObject != this.gameObject)
+            {
+                // Apply damage based on the type of enemy
+                if (enemy.GetComponent<crabScript>() != null)
+                {
+                    enemy.GetComponent<crabScript>().TakeDamage(explosionDamage);
+                }
+                else if (enemy.GetComponent<ghostScript>() != null)
+                {
+                    enemy.GetComponent<ghostScript>().TakeDamage(explosionDamage);
+                }
+                else if (enemy.GetComponent<cyclopsScript>() != null)
+                {
+                    enemy.GetComponent<cyclopsScript>().TakeDamage(explosionDamage);
+                }
+            }
+        }
+    }
 
     void DisableColliders()
     {

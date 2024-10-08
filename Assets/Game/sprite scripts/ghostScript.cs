@@ -34,11 +34,20 @@ public class ghostScript : MonoBehaviour
     public AudioClip ghostDieSound;  // Sound for throwing the spear
     public AudioSource audioSource;    // AudioSource component assigned via the Inspector
 
+    public AudioClip chargeSound;  // Sound for throwing the spear
+    public AudioSource audioSource2;    // AudioSource component assigned via the Inspector
+
     public float explosionRadius = 15f; // Radius of the explosion
     public float explosionForce = 55f; // Force of the explosion
 
+    public float damageRadius = 7f; // How far the damage can reach
+
+    public float explosionDamage = 30f; // How much damage the explosion causes
+
     public float aliveShakeIntensity = -0.13f;
     public float deadShakeIntensity = -0.5f;
+
+    public float detectionRadius = 15f; // How close the ghost needs to be to play the sound
 
     // Initialize method to set ghost's attributes from the spawner
     public void Initialize(float initialSpeed, float initialHealth, float initialDamage)
@@ -157,19 +166,22 @@ public class ghostScript : MonoBehaviour
 
     void StartCharging()
     {
-        isCharging = true;
-        speed = chargeSpeed;
-        chargeTimer = 2f;
-        attack_damage *= 2;
-
-        // Reduce health to 1 during charging
-        initialHealth = health; // Store the current health
-        health = 1;
-
-        // Start flickering colors when charging
-        if (chargeFlickerCoroutine == null)
+        if (IsGhostNearMainCamera())  // Play sound only if near the camera/hero
         {
-            chargeFlickerCoroutine = StartCoroutine(FlickerColors());
+            isCharging = true;
+            PlayChargeSound();
+            Debug.Log("ok sound should be playing");
+            speed = chargeSpeed;
+            chargeTimer = 2f;
+            attack_damage *= 2;
+
+            initialHealth = health;  // Store the current health
+            health = 1;
+
+            if (chargeFlickerCoroutine == null)
+            {
+                chargeFlickerCoroutine = StartCoroutine(FlickerColors());
+            }
         }
     }
 
@@ -184,6 +196,8 @@ public class ghostScript : MonoBehaviour
 
         // Stop the flicker effect and reset color
         StopFlickering();
+
+        audioSource2.Stop();
     }
 
     void Die()
@@ -213,7 +227,7 @@ public class ghostScript : MonoBehaviour
             deathParticles.Play();
         }
 
-        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce);
+        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce, explosionDamage, damageRadius);
 
         // Handle other death logic
         killCounter.IncreaseKillCount();
@@ -239,6 +253,7 @@ public class ghostScript : MonoBehaviour
     {
         isCharging = false;
         speed = 0;
+        audioSource2.Stop();
     }
 
    void PlayDestoryedSound()
@@ -249,6 +264,25 @@ public class ghostScript : MonoBehaviour
             audioSource.clip = ghostDieSound;
             audioSource.Play();
         }
+    }
+
+    void PlayChargeSound()
+    {
+        if (audioSource2 != null && chargeSound != null && isCharging)
+        {
+            // Ensure that the sound only plays on death and not on spawn
+            audioSource2.clip = chargeSound;
+            audioSource2.Play();
+            Debug.Log("ok sound should be playing but now in the charge sound");
+        }
+       
+    }
+
+    bool IsGhostNearMainCamera()
+    {
+        Vector3 mainCameraPosition = Camera.main.transform.position;
+        float distanceToCamera = Vector3.Distance(transform.position, mainCameraPosition);
+        return distanceToCamera <= detectionRadius;
     }
 
     // Coroutine to flicker between red, black, and blue rapidly during charging
@@ -294,24 +328,46 @@ void DeadShake()
     GenerateImpulseWithCustomVelocity(deadImpulseVelocity);
 }
 
-void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce)
-{
-    // Detect all enemies within the explosion radius
-    Collider2D[] enemies = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
-
-    foreach (Collider2D enemy in enemies)
+    void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce, float damageRadius, float explosionDamage)
     {
-        Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
-        if (rb != null && enemy.gameObject != this.gameObject) // Ensure it doesn't affect itself
-        {
-            // Calculate the direction from the explosion to the enemy
-            Vector2 direction = (rb.position - explosionPosition).normalized;
+        // Apply explosion force to enemies within the explosionRadius
+        Collider2D[] enemiesForForce = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
 
-            // Apply force to the enemy's Rigidbody2D
-            rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
+        foreach (Collider2D enemy in enemiesForForce)
+        {
+            // Ensure the enemy has a Rigidbody2D and isn't the current exploding enemy
+            Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
+            if (rb != null && enemy.gameObject != this.gameObject)
+            {
+                // Apply explosion force to the enemy's Rigidbody2D
+                Vector2 direction = (rb.position - explosionPosition).normalized;
+                rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
+            }
+        }
+
+        // Apply damage to enemies within the damageRadius
+        Collider2D[] enemiesForDamage = Physics2D.OverlapCircleAll(explosionPosition, damageRadius);
+
+        foreach (Collider2D enemy in enemiesForDamage)
+        {
+            if (enemy.gameObject != this.gameObject)
+            {
+                // Apply damage based on the type of enemy
+                if (enemy.GetComponent<crabScript>() != null)
+                {
+                    enemy.GetComponent<crabScript>().TakeDamage(explosionDamage);
+                }
+                else if (enemy.GetComponent<ghostScript>() != null)
+                {
+                    enemy.GetComponent<ghostScript>().TakeDamage(explosionDamage);
+                }
+                else if (enemy.GetComponent<cyclopsScript>() != null)
+                {
+                    enemy.GetComponent<cyclopsScript>().TakeDamage(explosionDamage);
+                }
+            }
         }
     }
-}
 
 void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
 {

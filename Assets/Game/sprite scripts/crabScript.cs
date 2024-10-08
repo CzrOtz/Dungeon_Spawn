@@ -37,6 +37,10 @@ public class crabScript : MonoBehaviour
 
     public float explosionRadius = 12f; // Radius of the explosion
     public float explosionForce = 55f; // Force of the explosion
+
+    public float damageRadius = 5f; // How far the damage can reach
+    public float explosionDamage = 20f; // How much damage the explosion causes
+
     public float detectionRadius = 15f; // How close the crab needs to be to play the sound
 
     public float deadShakeIntensity = -0.5f;
@@ -132,7 +136,7 @@ public class crabScript : MonoBehaviour
         // Ensure spriteRenderer is assigned before checking if the crab is on screen
         if (spriteRenderer == null)
         {
-            Debug.LogWarning("SpriteRenderer is null, charging aborted.");
+            
             return;  // Safely exit if spriteRenderer is not initialized
         }
 
@@ -150,10 +154,7 @@ public class crabScript : MonoBehaviour
                 PlayChargeSound();
             }
         }
-        else
-        {
-            Debug.Log("Crab is off-screen, charging delayed.");
-        }
+        
     }
 
     void EndCharging()
@@ -240,7 +241,7 @@ public class crabScript : MonoBehaviour
             deathParticles.Play();
         }
 
-        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce);
+        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce, explosionDamage, damageRadius);
 
         // Make the crab invisible
         spriteRenderer.color = Color.clear;
@@ -326,16 +327,43 @@ public class crabScript : MonoBehaviour
         }
     }
 
-    void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce)
+    void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce, float damageRadius, float explosionDamage)
     {
-        Collider2D[] enemies = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
-        foreach (Collider2D enemy in enemies)
+        // Apply explosion force to enemies within the explosionRadius
+        Collider2D[] enemiesForForce = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
+
+        foreach (Collider2D enemy in enemiesForForce)
         {
+            // Ensure the enemy has a Rigidbody2D and isn't the current exploding enemy
             Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
             if (rb != null && enemy.gameObject != this.gameObject)
             {
+                // Apply explosion force to the enemy's Rigidbody2D
                 Vector2 direction = (rb.position - explosionPosition).normalized;
                 rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
+            }
+        }
+
+        // Apply damage to enemies within the damageRadius
+        Collider2D[] enemiesForDamage = Physics2D.OverlapCircleAll(explosionPosition, damageRadius);
+
+        foreach (Collider2D enemy in enemiesForDamage)
+        {
+            if (enemy.gameObject != this.gameObject)
+            {
+                // Apply damage based on the type of enemy
+                if (enemy.GetComponent<crabScript>() != null)
+                {
+                    enemy.GetComponent<crabScript>().TakeDamage(explosionDamage);
+                }
+                else if (enemy.GetComponent<ghostScript>() != null)
+                {
+                    enemy.GetComponent<ghostScript>().TakeDamage(explosionDamage);
+                }
+                else if (enemy.GetComponent<cyclopsScript>() != null)
+                {
+                    enemy.GetComponent<cyclopsScript>().TakeDamage(explosionDamage);
+                }
             }
         }
     }
