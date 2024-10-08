@@ -4,9 +4,9 @@ using Cinemachine;
 
 public class cyclopsScript : MonoBehaviour
 {
-    public float speed; // Base speed
-    public float health; // Cyclops health
-    public float attack_damage; // Cyclops attack damage
+    public float speed;           // Base speed
+    public float health;          // Cyclops health
+    public float attack_damage;   // Cyclops attack damage
     private int points = 122;
     public Transform heroTransform;
     private KcountScript killCounter;
@@ -16,32 +16,29 @@ public class cyclopsScript : MonoBehaviour
     public float acceleration = 0.7f;
     private float currentSpeed = 0f;
     private float maxSpeed;
-    private SpriteRenderer spriteRenderer;
-    private Color originalColor; // Store the original color
-    private bool isFlashing = false; // To prevent multiple flashes at once
-    private bool isDead = false; // To prevent multiple calls to Die()
+    private bool isDead = false;  // To prevent multiple calls to Die()
 
-    public AudioClip cyDieSound;  
-    public AudioSource audioSource; 
+    public AudioClip cyDieSound;
+    public AudioSource audioSource;
 
-    public float explosionRadius = 50f; // Radius of the explosion
-    public float explosionForce = 200f; // Force of the explosion
+    [Header("Explosion Visual Physics")]
+    public float explosionRadius = 50f;  // Radius of the explosion
+    public float explosionForce = 200f;  // Force of the explosion
 
-    public float damageRadius = 35f; // How far the damage can reach
+    [Header("Explosion Damage")]
+    public float damageRadius = 35f;     // How far the damage can reach
     public float explosionDamage = 100f; // How much damage the explosion causes
-    
+
+    // Reference to the cyclopsRenderScript
+    private cyclopsRenderScript renderScript;
+
+    // Shake effect variables
     private CinemachineImpulseSource impulseSource;
-
-    // Colors for the dynamic flashing effect
-    private Color[] flashColors = new Color[3];
-
-    // Reference to the death particles
-    private ParticleSystem deathParticles;
-
     public float deadShakeIntensity = -0.7f;
     public float aliveShakeIntensity = -0.12f;
 
-    
+    // Death particles
+    private ParticleSystem deathParticles;
 
     // Method to initialize cyclops values from the spawner
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
@@ -60,27 +57,31 @@ public class cyclopsScript : MonoBehaviour
         enemiesOnScreen = FindAnyObjectByType<eosScript>();
         score = FindObjectOfType<scoreScript>();
         chScript = GetComponentInChildren<CHScript>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
 
-        
+        // Get the render script from the child
+        renderScript = GetComponentInChildren<cyclopsRenderScript>();
+        if (renderScript == null)
+        {
+            Debug.LogError("cyclopsRenderScript not found in child object!");
+        }
+
+        // Get CinemachineImpulseSource
         impulseSource = GetComponent<CinemachineImpulseSource>();
+        if (impulseSource == null)
+        {
+            Debug.LogError("CinemachineImpulseSource not found on cyclops!");
+        }
 
-        // Initialize particle system
+        // Get death particles
         deathParticles = GetComponent<ParticleSystem>();
         if (deathParticles != null)
         {
             deathParticles.Stop();
         }
-
-        if (spriteRenderer != null)
+        else
         {
-            originalColor = spriteRenderer.color; // Store the original color
+            Debug.LogError("ParticleSystem (deathParticles) not found on cyclops!");
         }
-
-        // Define the flash colors with translucency
-        flashColors[0] = new Color(1f, 1f, 1f, 0.99f);  // White with slight transparency
-        flashColors[1] = new Color(0.95f, 0.95f, 0.95f, 0.98f);  // Slightly off-white
-        flashColors[2] = new Color(0.90f, 0.90f, 0.90f, 0.97f);  // More subdued off-white
 
         GameObject hero = GameObject.FindGameObjectWithTag("Hero");
         if (hero != null)
@@ -98,9 +99,6 @@ public class cyclopsScript : MonoBehaviour
         }
 
         maxSpeed = speed;
-
-        // Start the flashing coroutine
-        StartCoroutine(FlashColors());
     }
 
     void Update()
@@ -128,11 +126,14 @@ public class cyclopsScript : MonoBehaviour
     {
         health -= damageAmount;
 
-        // Flash red when hit, but only if not already flashing red
-        if (!isFlashing && spriteRenderer != null)
+        // Notify the render script to flash red when hit
+        if (renderScript != null)
         {
-            StartCoroutine(FlashRed());
+            renderScript.StartCoroutine(renderScript.FlashRed());
         }
+
+        // Trigger alive shake
+        AliveShake();
 
         if (chScript != null)
         {
@@ -143,116 +144,63 @@ public class cyclopsScript : MonoBehaviour
         {
             Die();
         }
-
-        AliveShake();
-    
-        
-    }
-
-    // Coroutine to flash red for 0.25 seconds
-    IEnumerator FlashRed()
-    {
-        isFlashing = true;
-        spriteRenderer.color = Color.red; // Change to red
-        yield return new WaitForSeconds(0.125f); 
-        spriteRenderer.color = originalColor; // Reset to original color
-        isFlashing = false;
-    }
-
-    // Coroutine to flash between the three colors to give a sense of life
-    IEnumerator FlashColors()
-    {
-        int index = 0;
-
-        while (!isDead)
-        {
-            if (!isFlashing) // Only flash colors if not flashing red
-            {
-                spriteRenderer.color = flashColors[index];
-                index = (index + 1) % flashColors.Length;
-            }
-
-            yield return new WaitForSeconds(0.1f); // Quickly flash colors (can be adjusted for timing)
-        }
     }
 
     void Die()
     {
-        PlayDestoryedSound();
         if (isDead) return; // Ensure Die() is only called once
 
         isDead = true;
 
-        // Ensure health is 0 and stop flashing
+        // Ensure health is 0
         health = 0;
         if (chScript != null)
         {
             chScript.MirrorHealth((int)health);
         }
-        StopAllCoroutines();
 
+        // Stop movement
+        speed = 0;
+
+        // Disable colliders
         DisableColliders();
 
-        spriteRenderer.color = Color.clear; // Make the cyclops invisible
-        speed = 0; // Stop moving
+        // Play the death sound
+        PlayDestroyedSound();
 
-        // Play the death particles
+        // Play death particles
         if (deathParticles != null)
         {
             deathParticles.Play();
         }
 
-        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce, explosionDamage, damageRadius);
+        // Notify the render script to handle death visuals (e.g., stop bouncing, make invisible)
+        if (renderScript != null)
+        {
+            renderScript.Die();
+        }
+
+        // Apply explosion effects
+        ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce, damageRadius, explosionDamage);
+
+        // Trigger death shake
+        DeadShake();
 
         // Handle other death logic
         killCounter.IncreaseKillCount();
         enemiesOnScreen.Subtract();
         score.IncreaseScore(points);
 
-        DeadShake();
-
-       
-
-        // Destroy the cyclops after the particle effect finishes
-        // Destroy(gameObject, deathParticles.main.duration);
+        // Destroy the cyclops after a delay (matching the death particles duration)
         Destroy(gameObject, 1.5f);
     }
 
-    void PlayDestoryedSound()
+    void PlayDestroyedSound()
     {
         if (audioSource != null && cyDieSound != null)
         {
-            // Ensure that the sound only plays on death and not on spawn
             audioSource.clip = cyDieSound;
             audioSource.Play();
-        }
-    }
-
-    void AliveShake()
-    {
-        // Custom velocity for AliveShake impulse
-        Vector3 aliveImpulseVelocity = new Vector3(aliveShakeIntensity, aliveShakeIntensity, 0f);
-        GenerateImpulseWithCustomVelocity(aliveImpulseVelocity);
-    }
-
-    void DeadShake()
-    {
-        // Custom velocity for DeadShake impulse
-        Vector3 deadImpulseVelocity = new Vector3(deadShakeIntensity, deadShakeIntensity, 0f);
-        GenerateImpulseWithCustomVelocity(deadImpulseVelocity);
-    }
-
-    void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
-    {
-        if (impulseSource != null)
-        {
-            // Set the custom velocity for the impulse and generate it
-            impulseSource.m_DefaultVelocity = customVelocity;
-            impulseSource.GenerateImpulse();
-        }
-        else
-        {
-            Debug.LogError("CinemachineImpulseSource not found on the object.");
         }
     }
 
@@ -305,7 +253,36 @@ public class cyclopsScript : MonoBehaviour
             collider.enabled = false;
         }
     }
+
+    // Shake effects
+    void AliveShake()
+    {
+        Vector3 aliveImpulseVelocity = new Vector3(aliveShakeIntensity, aliveShakeIntensity, 0f);
+        GenerateImpulseWithCustomVelocity(aliveImpulseVelocity);
+    }
+
+    void DeadShake()
+    {
+        Vector3 deadImpulseVelocity = new Vector3(deadShakeIntensity, deadShakeIntensity, 0f);
+        GenerateImpulseWithCustomVelocity(deadImpulseVelocity);
+    }
+
+    void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
+    {
+        if (impulseSource != null)
+        {
+            impulseSource.m_DefaultVelocity = customVelocity;
+            impulseSource.GenerateImpulse();
+        }
+        else
+        {
+            Debug.LogError("CinemachineImpulseSource not found on the object.");
+        }
+    }
 }
+
+
+
 
 
 
