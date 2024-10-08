@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement; // To handle scene transitions
 
@@ -14,6 +15,8 @@ public class heroScript : MonoBehaviour
     private cyclopsScript cyclops;
     private heroEnemyScript collisionManager;
     public bool isDead = false; // Track if the hero is dead
+
+    public bool takingDamage = false;
     private SpriteRenderer spriteRenderer; // Reference to the hero's sprite renderer
 
     void Start()
@@ -61,6 +64,13 @@ public class heroScript : MonoBehaviour
     void OnCollisionStay2D(Collision2D collision)
     {
         collisionManager.ManageCollisions(collision);
+        takingDamage = true;
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        collisionManager.ManageCollisions(collision);
+        takingDamage = false;
     }
 
     // Adjusted Die() method to stop hero movement and load GameOver after 2 seconds
@@ -72,15 +82,12 @@ public class heroScript : MonoBehaviour
             healthDisplay.Copy(health);
             rb.velocity = Vector2.zero; // Stop movement immediately
             
-            // Turn hero red upon death
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.color = Color.red; // Change color to red
-            }
 
             StartCoroutine(TriggerGameOverScene()); // Start the coroutine to load GameOver
         }
     }
+
+    
 
     // Coroutine to wait for 2 seconds before loading the GameOver scene
     IEnumerator TriggerGameOverScene()
@@ -89,6 +96,9 @@ public class heroScript : MonoBehaviour
         SceneManager.LoadScene("GameOver"); // Replace with your actual GameOver scene name
     }
 }
+
+
+
 
 
 

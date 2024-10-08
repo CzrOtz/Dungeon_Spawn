@@ -69,6 +69,7 @@ public class heroEnemyScript : MonoBehaviour
             ghostScript ghost = collision.gameObject.GetComponent<ghostScript>();
             if (ghost != null)
             {
+                heroScript.takingDamage = true;
                 heroScript.health -= ghost.attack_damage;
                 heroScript.health = Mathf.Round(heroScript.health * 100f) / 100f;
                 
@@ -122,3 +123,4 @@ public class heroEnemyScript : MonoBehaviour
 
     
 }
+
