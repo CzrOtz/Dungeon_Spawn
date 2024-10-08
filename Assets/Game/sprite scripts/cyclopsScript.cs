@@ -4,6 +4,7 @@ using Cinemachine;
 
 public class cyclopsScript : MonoBehaviour
 {
+    [Header("Cyclops Stats")]
     public float speed;           // Base speed
     public float health;          // Cyclops health
     public float attack_damage;   // Cyclops attack damage
@@ -18,6 +19,7 @@ public class cyclopsScript : MonoBehaviour
     private float maxSpeed;
     private bool isDead = false;  // To prevent multiple calls to Die()
 
+    [Header("Audio")]
     public AudioClip cyDieSound;
     public AudioSource audioSource;
 
@@ -34,6 +36,8 @@ public class cyclopsScript : MonoBehaviour
 
     // Shake effect variables
     private CinemachineImpulseSource impulseSource;
+
+    [Header("Shake Intensity")]
     public float deadShakeIntensity = -0.7f;
     public float aliveShakeIntensity = -0.12f;
 

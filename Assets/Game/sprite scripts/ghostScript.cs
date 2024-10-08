@@ -31,23 +31,30 @@ public class ghostScript : MonoBehaviour
 
     private CinemachineImpulseSource impulseSource;
 
+    [Header("Audio")]
     public AudioClip ghostDieSound;  // Sound for throwing the spear
     public AudioSource audioSource;    // AudioSource component assigned via the Inspector
 
     public AudioClip chargeSound;  // Sound for throwing the spear
     public AudioSource audioSource2;    // AudioSource component assigned via the Inspector
 
+    [Header("sound proximity")]
+    public float detectionRadius = 15f; // How close the ghost needs to be to play the sound
+
+    [Header("Explosion Visual Physics")]
     public float explosionRadius = 15f; // Radius of the explosion
     public float explosionForce = 55f; // Force of the explosion
 
+    [Header("Explosion Damage")]
     public float damageRadius = 7f; // How far the damage can reach
 
     public float explosionDamage = 30f; // How much damage the explosion causes
 
+    [Header("Shake Intensity")]
     public float aliveShakeIntensity = -0.13f;
     public float deadShakeIntensity = -0.5f;
 
-    public float detectionRadius = 15f; // How close the ghost needs to be to play the sound
+
 
     // Initialize method to set ghost's attributes from the spawner
     public void Initialize(float initialSpeed, float initialHealth, float initialDamage)
