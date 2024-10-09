@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Cinemachine;
+using Unity.VisualScripting;
 
 public class crabScript : MonoBehaviour
 {
@@ -10,42 +11,47 @@ public class crabScript : MonoBehaviour
     public Transform heroTransform;
     public float chargeTime = 2f;
     private int points = 27;
+
+    private float chargeTimer = 0f;
     private KcountScript killCounter;
     private eosScript enemiesOnScreen;
     private scoreScript score;
-    private SpriteRenderer spriteRenderer;
+    private CrabHTScript crabHScript;
     private float originalSpeed;
     private float chargeSpeed;
     private bool isCharging = false;
-    private Color originalColor;
-    private CrabHTScript crabHScript;
-    private float chargeTimer = 0f;
-    private bool isFlashing = false;
     private bool isDead = false; // To prevent multiple death calls
 
+    [Header("Audio")]
     public AudioClip crabDieSound;
-
     public AudioClip crabChargeSound;  // Sound for charging  
     public AudioSource audioSource;    // Audio source for explosion sound
     public AudioSource audioSource2;   // Audio source for charging sound
 
+    [Header("Detection Radius")]
+    public float detectionRadius = 15f; // How close the crab needs to be to play the sound
+
     // Reference to the death particles
     private ParticleSystem deathParticles;
-    private Color[] flashColors = new Color[3];
 
     private CinemachineImpulseSource impulseSource;
 
+    [Header("Explosion Visual Physics")]
     public float explosionRadius = 12f; // Radius of the explosion
     public float explosionForce = 55f; // Force of the explosion
 
+    [Header("Explosion Damage")]
     public float damageRadius = 5f; // How far the damage can reach
     public float explosionDamage = 20f; // How much damage the explosion causes
 
-    public float detectionRadius = 15f; // How close the crab needs to be to play the sound
+    
 
+    [Header("Shake Intensity")]
     public float deadShakeIntensity = -0.5f;
     public float aliveShakeIntensity = -0.1f;
 
+    // Reference to crabRender script
+    private crabRender renderScript;
 
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
     {
@@ -62,9 +68,19 @@ public class crabScript : MonoBehaviour
         score = FindObjectOfType<scoreScript>();
         enemiesOnScreen = FindAnyObjectByType<eosScript>();
         crabHScript = GetComponentInChildren<CrabHTScript>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // Get the render script from the child
+        renderScript = GetComponentInChildren<crabRender>();
+        if (renderScript == null)
+        {
+            Debug.LogError("crabRender script not found in child object!");
+        }
+
         impulseSource = GetComponent<CinemachineImpulseSource>();
-        originalColor = spriteRenderer.color;
+        if (impulseSource == null)
+        {
+            Debug.LogError("CinemachineImpulseSource not found on crab!");
+        }
 
         // Initialize particles and ensure they don't play at the start
         deathParticles = GetComponent<ParticleSystem>();
@@ -72,15 +88,10 @@ public class crabScript : MonoBehaviour
         {
             deathParticles.Stop();
         }
-
-        if (spriteRenderer != null)
+        else
         {
-            originalColor = spriteRenderer.color;
+            Debug.LogError("ParticleSystem (deathParticles) not found on crab!");
         }
-
-        flashColors[0] = new Color(1f, 1f, 1f, 0.97f);
-        flashColors[1] = new Color(0.95f, 0.95f, 0.95f, 0.98f);
-        flashColors[2] = new Color(0.90f, 0.90f, 0.90f, 0.99f);
 
         GameObject hero = GameObject.FindGameObjectWithTag("Hero");
         if (hero != null)
@@ -91,8 +102,6 @@ public class crabScript : MonoBehaviour
         {
             Debug.LogError("Hero not found! Ensure the hero has the correct tag.");
         }
-
-        StartCoroutine(FlashColors());
     }
 
     void Update()
@@ -133,13 +142,6 @@ public class crabScript : MonoBehaviour
 
     public void StartCharging()
     {
-        // Ensure spriteRenderer is assigned before checking if the crab is on screen
-        if (spriteRenderer == null)
-        {
-            
-            return;  // Safely exit if spriteRenderer is not initialized
-        }
-
         // Check if the crab is on screen before allowing it to charge
         if (IsCrabOnScreen())
         {
@@ -153,8 +155,13 @@ public class crabScript : MonoBehaviour
             {
                 PlayChargeSound();
             }
+
+            // Notify render script to start charging visuals
+            if (renderScript != null)
+            {
+                renderScript.StartChargingVisuals();
+            }
         }
-        
     }
 
     void EndCharging()
@@ -166,15 +173,21 @@ public class crabScript : MonoBehaviour
         if (audioSource2.isPlaying)
         {
             audioSource2.Stop();
-        }   
+        }
+
+        // Notify render script to end charging visuals
+        if (renderScript != null)
+        {
+            renderScript.EndChargingVisuals();
+        }
     }
 
     public void TakeDamage(float damageAmount)
     {
         health -= damageAmount;
-        if (!isFlashing && spriteRenderer != null)
+        if (renderScript != null)
         {
-            StartCoroutine(FlashRed());
+            renderScript.StartCoroutine(renderScript.FlashRed());
         }
 
         if (health <= 0 && !isDead)
@@ -186,54 +199,31 @@ public class crabScript : MonoBehaviour
         AliveShake();
     }
 
-    IEnumerator FlashRed()
-    {
-        isFlashing = true;
-        spriteRenderer.color = Color.red;
-        yield return new WaitForSeconds(0.125f);
-        spriteRenderer.color = originalColor;
-        isFlashing = false;
-    }
-
-    IEnumerator FlashColors()
-    {
-        int index = 0;
-        while (true)
-        {
-            if (!isFlashing)
-            {
-                spriteRenderer.color = flashColors[index];
-                index = (index + 1) % flashColors.Length;
-            }
-            yield return new WaitForSeconds(0.1f);
-        }
-    }
-
     void Die()
     {
-        PlayDestoryedSound();
+        PlayDestroyedSound();
+
+        
 
         if (audioSource2.isPlaying)
         {
             audioSource2.Stop();
-        }   
+        }
 
         if (isDead) return;
 
         isDead = true;
-
         health = 0;
 
-        crabHScript.MirrorHealth((int)health);
-
-        // Stop flashing
-        StopAllCoroutines();
+        if (crabHScript != null)
+        {
+            crabHScript.MirrorHealth((int)health);
+        }
 
         // Disable colliders to prevent further interactions
         DisableColliders();
 
         speed = 0;
-        spriteRenderer.color = Color.clear;
 
         // Play the death particles
         if (deathParticles != null)
@@ -243,8 +233,10 @@ public class crabScript : MonoBehaviour
 
         ExplodeEnemiesAway(transform.position, explosionRadius, explosionForce, explosionDamage, damageRadius);
 
-        // Make the crab invisible
-        spriteRenderer.color = Color.clear;
+        // Notify render script to handle death visuals
+      
+        renderScript.Die();
+        
 
         // Handle other death logic
         killCounter.IncreaseKillCount();
@@ -257,7 +249,7 @@ public class crabScript : MonoBehaviour
         Destroy(gameObject, deathParticles.main.duration);
     }
 
-    void PlayDestoryedSound()
+    void PlayDestroyedSound()
     {
         if (audioSource != null && crabDieSound != null)
         {
@@ -286,17 +278,16 @@ public class crabScript : MonoBehaviour
     // Detects if the crab is on the screen (in the camera's view)
     bool IsCrabOnScreen()
     {
-        if (spriteRenderer == null || Camera.main == null)
+        if (renderScript == null || Camera.main == null)
         {
-            Debug.LogWarning("SpriteRenderer or Camera is null.");
-            return false;  // Safely return false if spriteRenderer or Camera.main is null
+            return false;
         }
 
         // Get the camera's frustum planes
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(Camera.main);
 
-        // Get the bounds of the crab's sprite renderer
-        Bounds crabBounds = spriteRenderer.bounds;
+        // Get the bounds of the crab's sprite renderer from render script
+        Bounds crabBounds = renderScript.GetSpriteBounds();
 
         // Check if the crab's bounds intersect with the camera's frustum planes
         return GeometryUtility.TestPlanesAABB(planes, crabBounds);

@@ -4,6 +4,8 @@ public class blueBottleScript : MonoBehaviour
 {
 
     //this script will increase the speed of the hero
+    //starting speed should be 10 
+    //decelaration rate should be 10 constant 
 
     private heroScript hero;
     private float increaseSpeedRate = 1.10f;
@@ -27,9 +29,9 @@ public class blueBottleScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Hero"))
         {
-          if (hero.speed > 5)
+          if (hero.speed > 95)
           {
-              hero.speed += 0.1f;
+              hero.speed += 0.2f;
           } else {
               hero.speed *= increaseSpeedRate;
           }

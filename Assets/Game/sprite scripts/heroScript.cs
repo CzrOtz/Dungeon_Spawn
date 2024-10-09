@@ -1,13 +1,20 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement; // To handle scene transitions
 
 public class heroScript : MonoBehaviour
 {
-    public float speed;
-    private Vector2 moveInput;
+    [Header("Movement Settings")]
+    public float speed = 50f; // Adjusted speed for force-based movement
+    public float maxSpeed = 5f; // Maximum speed the hero can reach
+    public float decelerationRate = 10f; // Rate at which the hero slows down when no input
+    
+    [Header("Health Setting")]    
     public float health = 100;
+    
+    private Vector2 moveInput;
+
+
     public heroHealthDisplayScript healthDisplay;
     public Rigidbody2D rb;
 
@@ -32,23 +39,34 @@ public class heroScript : MonoBehaviour
     {
         if (!isDead) // Only move if not dead
         {
-            float moveX = Input.GetAxis("Horizontal");
-            float moveY = Input.GetAxis("Vertical");
+            float moveX = Input.GetAxisRaw("Horizontal");
+            float moveY = Input.GetAxisRaw("Vertical");
 
-            moveInput = new Vector2(moveX, moveY) * speed;
+            moveInput = new Vector2(moveX, moveY).normalized;
         }
         Die(); // Check if hero should die
     }
 
     void FixedUpdate()
     {
-        if (!isDead) // Only update velocity if hero is alive
+        if (!isDead) // Only move if not dead
         {
-            rb.velocity = moveInput;
-        }
-        else
-        {
-            rb.velocity = Vector2.zero; // Stop movement after death
+            // Apply movement force
+            rb.AddForce(moveInput * speed, ForceMode2D.Force);
+
+            // Implement deceleration when no input is given
+            if (moveInput == Vector2.zero)
+            {
+                // Calculate a deceleration force opposite to the current velocity
+                Vector2 decelerationForce = -rb.velocity * decelerationRate;
+                rb.AddForce(decelerationForce, ForceMode2D.Force);
+            }
+
+            // Limit maximum speed
+            if (rb.velocity.magnitude > maxSpeed)
+            {
+                rb.velocity = rb.velocity.normalized * maxSpeed;
+            }
         }
 
         if (healthDisplay != null)
@@ -81,13 +99,10 @@ public class heroScript : MonoBehaviour
             isDead = true; // Mark hero as dead
             healthDisplay.Copy(health);
             rb.velocity = Vector2.zero; // Stop movement immediately
-            
 
             StartCoroutine(TriggerGameOverScene()); // Start the coroutine to load GameOver
         }
     }
-
-    
 
     // Coroutine to wait for 2 seconds before loading the GameOver scene
     IEnumerator TriggerGameOverScene()

@@ -177,7 +177,6 @@ public class ghostScript : MonoBehaviour
         {
             isCharging = true;
             PlayChargeSound();
-            Debug.Log("ok sound should be playing");
             speed = chargeSpeed;
             chargeTimer = 2f;
             attack_damage *= 2;
@@ -280,7 +279,6 @@ public class ghostScript : MonoBehaviour
             // Ensure that the sound only plays on death and not on spawn
             audioSource2.clip = chargeSound;
             audioSource2.Play();
-            Debug.Log("ok sound should be playing but now in the charge sound");
         }
        
     }

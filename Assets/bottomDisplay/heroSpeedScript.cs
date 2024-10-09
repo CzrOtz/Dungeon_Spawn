@@ -28,7 +28,7 @@ public class heroSpeedScript : MonoBehaviour
         if (hero != null)
         {
             // Update the UI with the set speed, not the live velocity
-            heroSpeedText.text = "Speed: " + hero.speed.ToString("F2");  // Display with 2 decimal points
+            heroSpeedText.text = "Speed: " + hero.speed.ToString("F2") + "%";  // Display with 2 decimal points
         }
     }
 }
