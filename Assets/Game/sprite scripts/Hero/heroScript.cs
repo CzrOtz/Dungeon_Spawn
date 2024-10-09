@@ -82,7 +82,16 @@ public class heroScript : MonoBehaviour
     void OnCollisionStay2D(Collision2D collision)
     {
         collisionManager.ManageCollisions(collision);
-        takingDamage = true;
+
+        if (collision.gameObject.CompareTag("wall"))
+        {
+           takingDamage = false;
+        }
+        else
+        {
+            takingDamage = true;
+        }
+        
     }
 
     void OnCollisionExit2D(Collision2D collision)
