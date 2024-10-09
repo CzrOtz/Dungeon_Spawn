@@ -44,6 +44,8 @@ public class cyclopsScript : MonoBehaviour
     // Death particles
     private ParticleSystem deathParticles;
 
+ 
+
     // Method to initialize cyclops values from the spawner
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
     {
@@ -111,6 +113,8 @@ public class cyclopsScript : MonoBehaviour
         {
             MoveTowardsHero();
         }
+
+       
     }
 
     void MoveTowardsHero()
@@ -125,6 +129,7 @@ public class cyclopsScript : MonoBehaviour
 
         transform.position = Vector3.MoveTowards(transform.position, heroTransform.position, currentSpeed * Time.deltaTime);
     }
+
 
     public void TakeDamage(float damageAmount)
     {
@@ -285,6 +290,8 @@ public class cyclopsScript : MonoBehaviour
             Debug.LogError("CinemachineImpulseSource not found on the object.");
         }
     }
+
+
 }
 
 

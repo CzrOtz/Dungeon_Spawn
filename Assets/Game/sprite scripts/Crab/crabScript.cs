@@ -44,7 +44,6 @@ public class crabScript : MonoBehaviour
     public float damageRadius = 5f; // How far the damage can reach
     public float explosionDamage = 20f; // How much damage the explosion causes
 
-    
 
     [Header("Shake Intensity")]
     public float deadShakeIntensity = -0.5f;
@@ -132,6 +131,8 @@ public class crabScript : MonoBehaviour
                 Die();
             }
         }
+
+        
     }
 
     void MoveTowardsHero()
@@ -139,6 +140,8 @@ public class crabScript : MonoBehaviour
         float currentSpeed = isCharging ? chargeSpeed : speed;
         transform.position = Vector3.MoveTowards(transform.position, heroTransform.position, currentSpeed * Time.deltaTime);
     }
+
+
 
     public void StartCharging()
     {
@@ -367,6 +370,7 @@ public class crabScript : MonoBehaviour
             collider.enabled = false;
         }
     }
+
 }
 
 

@@ -146,12 +146,16 @@ public class ghostScript : MonoBehaviour
         {
             spriteRenderer.color = Color.clear;
         }
+
+       
     }
 
     void MoveTowardsHero()
     {
         transform.position = Vector3.MoveTowards(transform.position, heroTransform.position, speed * Time.deltaTime);
     }
+
+
 
     public void TakeDamage(float damageAmount)
     {
@@ -397,6 +401,7 @@ void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
             collider.enabled = false;
         }
     }
+
 }
 
 

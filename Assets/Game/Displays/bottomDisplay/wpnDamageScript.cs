@@ -23,7 +23,7 @@ public class wpnDamageScript : MonoBehaviour
         if (spearSpawner != null)
         {
             // Display damage with 2 decimal places
-            weaponDamageText.text = "WPN Damage: " + spearSpawner.damage.ToString("F2");
+            weaponDamageText.text = "WPN Damage: " + spearSpawner.damage.ToString("F1");
         }
     }
 }
