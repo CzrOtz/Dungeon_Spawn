@@ -11,10 +11,10 @@ public class spawnPowerUpsScript : MonoBehaviour
     private GameObject currentBottle;  // Reference to the current active bottle
 
     // Timing settings
-    private float spawnInterval = 7f;  
-    private float bottleLifeTime = 15f;   
+    private float spawnInterval = 7f;  // Fixed spawn interval
+    private float minBottleLifeTime = 7f;  // Minimum lifetime for bottles
+    private float maxBottleLifeTime = 55f; // Maximum lifetime for bottles
 
-    // Start is called before the first frame update
     void Start()
     {
         // Start the coroutine to manage power-up spawning
@@ -32,8 +32,11 @@ public class spawnPowerUpsScript : MonoBehaviour
             // Pick and spawn a random bottle
             pickARandomBottle();
 
+            // Set a random lifetime for the spawned bottle between min and max
+            float randomLifetime = Random.Range(minBottleLifeTime, maxBottleLifeTime);
+
             // Wait for the bottle lifetime
-            yield return new WaitForSeconds(bottleLifeTime);
+            yield return new WaitForSeconds(randomLifetime);
 
             // If the bottle is still there, destroy it
             if (currentBottle != null)
@@ -54,20 +57,17 @@ public class spawnPowerUpsScript : MonoBehaviour
 
         switch (randomBottle)
         {
-           
             case 2:
                 SpawnRedBottle();
                 break;
             case 3:
                 SpawnBlueBottle();
-                
                 break;
             case 4:
                 SpawnGreenBottle();
                 break;
             case 5:
                 SpawnGrayBottle();
-                
                 break;
             default:
                 SpawnRedBottle();
@@ -96,4 +96,5 @@ public class spawnPowerUpsScript : MonoBehaviour
         currentBottle = Instantiate(grayBottlePrefab, transform.position, transform.rotation);
     }
 }
+
 
