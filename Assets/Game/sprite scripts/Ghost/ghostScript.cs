@@ -140,6 +140,8 @@ public class ghostScript : MonoBehaviour
             {
                 Die();
             }
+
+            AffirmPauseInAudioSource2();
         }
 
         if (health <= 0)
@@ -400,6 +402,24 @@ void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
         {
             collider.enabled = false;
         }
+    }
+
+    void AffirmPauseInAudioSource2()
+    {
+        if (Time.timeScale == 0)
+        {
+            // If the game is paused, pause all relevant sounds
+            audioSource2.Pause();
+        }
+        else
+        {
+            // If the game is unpaused, resume the charging sound if the ghost is charging
+            if (isCharging && !audioSource2.isPlaying)
+            {
+                audioSource2.UnPause();
+            }
+        }
+
     }
 
 }
