@@ -5,7 +5,8 @@ public class spearCollisionScript : MonoBehaviour
     public AudioClip enemyHitSound;    // Sound for hitting an enemy
     public AudioClip wallHitSound;     // Sound for hitting a wall
 
-    public AudioSource audioSource;    // AudioSource component assigned via the Inspector
+    public AudioSource enemyHitAudioSource;  // AudioSource for enemy hit sound
+    public AudioSource wallHitAudioSource;   // AudioSource for wall hit sound
 
     private spearScript spearScript;
     private GameObject spear;
@@ -34,14 +35,15 @@ public class spearCollisionScript : MonoBehaviour
             Debug.LogError("spearSpawnerScript not found.");
         }
 
-        if (audioSource == null)
+        if (enemyHitAudioSource == null || wallHitAudioSource == null)
         {
-            Debug.LogError("audioSource not assigned.");
+            Debug.LogError("One or more AudioSources not assigned.");
         }
     }
 
     public void ManageCollision(Collision2D collision)
     {
+        // Ensure spear is assigned
         if (spear == null)
         {
             spear = GameObject.FindGameObjectWithTag("Spear");
@@ -67,16 +69,16 @@ public class spearCollisionScript : MonoBehaviour
             return;
         }
 
+        // Handle collision with Ghost
         if (collision.gameObject.CompareTag("Ghost"))
         {
             ghostScript ghost = collision.gameObject.GetComponent<ghostScript>();
 
-            if (enemyHitSound != null && spearScript.isMoving && ghost.health > 0)
+            if (enemyHitAudioSource != null && spearScript.isMoving && ghost.health > 0)
             {
-                AudioSource.PlayClipAtPoint(enemyHitSound, transform.position, 1);
+                enemyHitAudioSource.PlayOneShot(enemyHitSound);
             }
 
-            
             if (ghost != null && spearScript.isMoving)
             {
                 ghost.TakeDamage(spearSpawner.damage);
@@ -85,16 +87,16 @@ public class spearCollisionScript : MonoBehaviour
             Destroy(spear);
         }
 
+        // Handle collision with Cyclops
         if (collision.gameObject.CompareTag("cyclops"))
         {
             cyclopsScript cyclops = collision.gameObject.GetComponent<cyclopsScript>();
 
-            if (enemyHitSound != null && spearScript.isMoving && cyclops.health > 0 )
+            if (enemyHitAudioSource != null && spearScript.isMoving && cyclops.health > 0)
             {
-                AudioSource.PlayClipAtPoint(enemyHitSound, transform.position, 1);
+                enemyHitAudioSource.PlayOneShot(enemyHitSound);
             }
 
-            
             if (cyclops != null && spearScript.isMoving)
             {
                 cyclops.TakeDamage(spearSpawner.damage);
@@ -103,16 +105,16 @@ public class spearCollisionScript : MonoBehaviour
             Destroy(spear);
         }
 
+        // Handle collision with Crab
         if (collision.gameObject.CompareTag("crab"))
         {
             crabScript crab = collision.gameObject.GetComponent<crabScript>();
 
-            if (enemyHitSound != null && spearScript.isMoving && crab.health > 0)
+            if (enemyHitAudioSource != null && spearScript.isMoving && crab.health > 0)
             {
-                AudioSource.PlayClipAtPoint(enemyHitSound, transform.position, 1);
+                enemyHitAudioSource.PlayOneShot(enemyHitSound);
             }
 
-            
             if (crab != null && spearScript.isMoving)
             {
                 crab.TakeDamage(spearSpawner.damage);
@@ -121,33 +123,34 @@ public class spearCollisionScript : MonoBehaviour
             Destroy(spear);
         }
 
-        // New code: Handle collision with spawn point
+        // Handle collision with Spawn Point
         if (collision.gameObject.CompareTag("spawnPoint"))
         {
-            if (enemyHitSound != null && spearScript.isMoving)
+            if (enemyHitAudioSource != null && spearScript.isMoving)
             {
-                AudioSource.PlayClipAtPoint(enemyHitSound, transform.position, 1);
+                enemyHitAudioSource.PlayOneShot(enemyHitSound);
             }
 
             spawnHealtScript spawnPoint = collision.gameObject.GetComponent<spawnHealtScript>();
             if (spawnPoint != null && spearScript.isMoving)
             {
-                // Decrease the spawn point's health by the spear's damage
                 spawnPoint.TakeDamage(spearSpawner.damage);
             }
 
             Destroy(spear);
         }
 
+        // Handle collision with Wall
         if (collision.gameObject.CompareTag("wall"))
         {
-            if (wallHitSound != null && spearScript.isMoving)
+            if (wallHitAudioSource != null && spearScript.isMoving)
             {
-                AudioSource.PlayClipAtPoint(wallHitSound, transform.position, 0.35f);
+                wallHitAudioSource.PlayOneShot(wallHitSound);
             }
 
             Destroy(spear);
         }
     }
 }
+
 

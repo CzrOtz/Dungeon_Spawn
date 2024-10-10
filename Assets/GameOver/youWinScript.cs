@@ -1,9 +1,17 @@
 using UnityEngine;
-using TMPro; // Import the TextMeshPro namespace
+using TMPro;
 
 public class youWinScript : MonoBehaviour
 {
-    public TMP_Text winMessage; // Reference to the TextMeshPro component
+    [Header("Lose Audio")]
+    public AudioClip youLoseSound;  // Sound for losing the game
+    public AudioSource audioSource1;  // AudioSource for losing sound
+
+    [Header("Win Audio")]
+    public AudioClip youWinSound;   // Sound for winning the game
+    public AudioSource audioSource2;  // AudioSource for winning sound
+
+    public TMP_Text winMessage;  // Reference to the TextMeshPro component
 
     void Start()
     {
@@ -12,12 +20,21 @@ public class youWinScript : MonoBehaviour
         {
             // Display "You Win" message if the game was won
             winMessage.text = "You Win!";
+
+            // Assign the win sound to the AudioSource and set it to loop
+            audioSource2.clip = youWinSound;
+            audioSource2.loop = true;  // Enable looping for the win sound
+            audioSource2.Play();       // Play the win sound
         }
         else
         {
-            // Clear the message if the game wasn't won
+            // Display "You died" message if the game wasn't won
             winMessage.text = "You died";
+
+            // Play the lose sound without looping
+            audioSource1.PlayOneShot(youLoseSound);
         }
     }
 }
+
 
