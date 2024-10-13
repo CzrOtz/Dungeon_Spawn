@@ -2,48 +2,60 @@ using UnityEngine;
 
 public class redBottleScript : MonoBehaviour
 {
-    //increases spear power
-    //has to spawn at 
-    // Start is called before the first frame update
-    //need a reference to the spear
-    // need a reference to the hero
+    // This script increases spear power
+    [Header("Bounce Settings")]
+    public float bounceAmplitude = 0.1f;  // Height of the bounce
+    public float bounceFrequency = 20f;   // Speed of the bounce
+    private float bounceTime;
 
-
-
-    //hero e
     private heroScript hero;
     private spearSpawnerScript spearSpawner;
-
     private float spearDamageBottleIncrease = 1.20f;
+
     void Start()
     {
-        //we can reference in the start because the hero and weapon will be there
+        // Reference hero and spear spawner in Start
         spearSpawner = FindObjectOfType<spearSpawnerScript>();
         hero = FindAnyObjectByType<heroScript>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+
+        if (Time.timeScale == 0)
+        {
+            return;
+        }
+
+        HandleBounce();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Hero"))
         {
-              
             if (spearSpawner.damage > 100)
             {
                 spearSpawner.damage += 5;
-            } else {
+            }
+            else
+            {
                 spearSpawner.damage += spearDamageBottleIncrease;
             }
 
             Destroy(gameObject);
-
         }
     }
 
-
+    void HandleBounce()
+    {
+        // Apply bounce effect using sine wave
+        bounceTime += Time.deltaTime * bounceFrequency;
+        float bounceOffset = Mathf.Sin(bounceTime) * bounceAmplitude;
+    
+        // Only modify the Y position (bounce) and keep X and Z as they are
+        Vector3 currentPosition = transform.localPosition;
+        transform.localPosition = new Vector3(currentPosition.x, currentPosition.y + bounceOffset, currentPosition.z);
+    }
 }
+

@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections;
 using Cinemachine;
+using System.IO;
+using Unity.VisualScripting;
 
 public class cyclopsScript : MonoBehaviour
 {
@@ -44,7 +46,9 @@ public class cyclopsScript : MonoBehaviour
     // Death particles
     private ParticleSystem deathParticles;
 
- 
+    [Header("Cyclops path")]
+    private GameObject cyclopsPath1;
+    private GameObject cyclopsPath2;
 
     // Method to initialize cyclops values from the spawner
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
@@ -63,6 +67,8 @@ public class cyclopsScript : MonoBehaviour
         enemiesOnScreen = FindAnyObjectByType<eosScript>();
         score = FindObjectOfType<scoreScript>();
         chScript = GetComponentInChildren<CHScript>();
+        cyclopsPath1 = GameObject.FindWithTag("Path1");
+        cyclopsPath2 = GameObject.FindWithTag("Path2");
 
         // Get the render script from the child
         renderScript = GetComponentInChildren<cyclopsRenderScript>();
@@ -105,6 +111,9 @@ public class cyclopsScript : MonoBehaviour
         }
 
         maxSpeed = speed;
+
+        // Check if the Cyclops should pursue a path
+        MoveTowardsPath();
     }
 
     void Update()
@@ -113,8 +122,6 @@ public class cyclopsScript : MonoBehaviour
         {
             MoveTowardsHero();
         }
-
-       
     }
 
     void MoveTowardsHero()
@@ -130,6 +137,77 @@ public class cyclopsScript : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, heroTransform.position, currentSpeed * Time.deltaTime);
     }
 
+    void MoveTowardsPath()
+    {
+        if (cyclopsPath1 == null || cyclopsPath2 == null)
+        {
+            Debug.LogWarning("Paths are not set, moving towards the hero.");
+            MoveTowardsHero();
+            return;
+        }
+
+        // Choose a random path (cyclopsPath1 or cyclopsPath2)
+        GameObject selectedPath = Random.Range(1, 4) > 3 ? cyclopsPath1 : cyclopsPath2;
+
+        // Calculate distances to the path and hero
+        float distanceToPath = Vector3.Distance(transform.position, selectedPath.transform.position);
+        float distanceToHero = Vector3.Distance(transform.position, heroTransform.position);
+
+        Debug.Log("FROM MOVE TOWARDS PATH DISTANCE TO HERO = " + distanceToHero);
+        Debug.Log("DISTANCE TO PATH = " + distanceToPath);
+
+        // New condition to only pursue if far enough from hero
+        if (distanceToPath <= 5f && distanceToHero > 5f)
+        {
+            // Pursue the path for 3 seconds
+            StartCoroutine(PursuePathForSeconds(selectedPath, 3f));
+        }
+        else
+        {
+            Debug.Log("Skipping pathfinding, moving towards the hero.");
+            MoveTowardsHero();
+        }
+    }
+
+    IEnumerator PursuePathForSeconds(GameObject targetPath, float duration)
+    {
+        float elapsedTime = 0f;
+
+        // Attempt to move towards the path for the full duration or until proximity conditions are met
+        while (elapsedTime < duration)
+        {
+            float distanceToPath = Vector3.Distance(transform.position, targetPath.transform.position);
+            float distanceToHero = Vector3.Distance(transform.position, heroTransform.position);
+
+            Debug.Log("Pursuing path... Time Elapsed: " + elapsedTime + " / " + duration);
+            Debug.Log("DISTANCE TO PATH = " + distanceToPath + ", DISTANCE TO HERO = " + distanceToHero);
+
+            // Keep moving towards the path unless abort conditions are met
+            if (distanceToPath <= 2f)
+            {
+                Debug.Log("Reached the path, aborting pathfinding.");
+                MoveTowardsHero();
+                yield break;
+            }
+
+            if (distanceToHero <= 5f)
+            {
+                Debug.Log("Hero too close, aborting pathfinding.");
+                MoveTowardsHero();
+                yield break;
+            }
+
+            // Actually move towards the path
+            transform.position = Vector3.MoveTowards(transform.position, targetPath.transform.position, currentSpeed * Time.deltaTime);
+            elapsedTime += Time.deltaTime;
+
+            // Wait for next frame
+            yield return null;
+        }
+
+        Debug.Log("Pursuit of the path is over, switching to hero.");
+        MoveTowardsHero();
+    }
 
     public void TakeDamage(float damageAmount)
     {
@@ -255,7 +333,6 @@ public class cyclopsScript : MonoBehaviour
         }
     }
 
-
     void DisableColliders()
     {
         Collider2D[] colliders = GetComponents<Collider2D>();
@@ -290,9 +367,8 @@ public class cyclopsScript : MonoBehaviour
             Debug.LogError("CinemachineImpulseSource not found on the object.");
         }
     }
-
-
 }
+
 
 
 
