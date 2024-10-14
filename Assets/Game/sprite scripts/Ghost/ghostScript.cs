@@ -188,7 +188,7 @@ public class ghostScript : MonoBehaviour
             attack_damage *= 2;
 
             initialHealth = health;  // Store the current health
-            health = 1;
+            health = 15;
 
             if (chargeFlickerCoroutine == null)
             {

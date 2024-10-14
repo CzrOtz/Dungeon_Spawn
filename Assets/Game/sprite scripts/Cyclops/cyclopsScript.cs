@@ -141,7 +141,6 @@ public class cyclopsScript : MonoBehaviour
     {
         if (cyclopsPath1 == null || cyclopsPath2 == null)
         {
-            Debug.LogWarning("Paths are not set, moving towards the hero.");
             MoveTowardsHero();
             return;
         }

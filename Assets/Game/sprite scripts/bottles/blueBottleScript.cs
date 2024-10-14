@@ -12,12 +12,14 @@ public class blueBottleScript : MonoBehaviour
     private float bounceTime;
     
     private heroScript hero;
+    private heroRenderScript heroRender;
     private float increaseSpeedRate = 1.10f;
 
     // Start is called before the first frame update
     void Start()
     {
         hero = FindObjectOfType<heroScript>();
+        heroRender = FindObjectOfType<heroRenderScript>();
         // Debug.Log("hero.speed += increaseSpeedRate: " + (hero.speed *= increaseSpeedRate));
     }
 
@@ -34,6 +36,10 @@ public class blueBottleScript : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
+        heroRender.FlashBlue();
+
+        
+
         if (collision.gameObject.CompareTag("Hero"))
         {
             if (hero.speed > 95)

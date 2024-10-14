@@ -1,5 +1,4 @@
 using System.Collections;
-using JetBrains.Annotations;
 using UnityEngine;
 
 public class spearScript : MonoBehaviour
@@ -13,17 +12,29 @@ public class spearScript : MonoBehaviour
     public AudioClip spearThrowSound;  // Sound for throwing the spear
     public AudioSource audioSource;    // AudioSource component assigned via the Inspector
 
-    private spearSpawnerScript spearSpawner;
     private spearCollisionScript collisionManagerS;
 
-    private float maxFlightTime = 1.5f; // Maximum flight time for the spear
+    public float speed = 20f;
+    public float damage = 15f;
+
+    private float maxFlightTime = 1f; // Maximum flight time for the spear
     private Collider2D spearCollider;   // Reference to the spear's collider
 
     private heroScript hero; // Reference to the hero
 
+    // Variables for color flashing
+    private SpriteRenderer spriteRenderer;
+    private Color originalColor;
+    public bool isFlashing = false;
+    private Coroutine flashCoroutine;
+
+    // For color cycling
+    private Color[] flashColors;
+    private float flashDuration;
+    private float flashInterval;
+
     void Start()
     {
-        spearSpawner = FindObjectOfType<spearSpawnerScript>();
         rb = GetComponent<Rigidbody2D>();
         cam = Camera.main;
         hero = FindObjectOfType<heroScript>();
@@ -35,10 +46,22 @@ public class spearScript : MonoBehaviour
 
         // Disable collisions at the start since the spear is not moving
         DisableCollisions();
+
+        // Get the SpriteRenderer component and store the original color
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
     }
 
     void Update()
     {
+        if (Time.timeScale == 0)
+        {
+            return;
+        }
+
         if (!isMoving)
         {
             AimAtCursor();
@@ -88,7 +111,7 @@ public class spearScript : MonoBehaviour
         rb.velocity = Vector2.zero;
 
         // Apply the calculated velocity for the spear movement
-        rb.velocity = moveDirection * spearSpawner.speed;
+        rb.velocity = moveDirection * speed;
 
         // Start the countdown to destroy the spear after maxFlightTime seconds
         StartCoroutine(DestroyAfterTime(maxFlightTime));
@@ -99,7 +122,7 @@ public class spearScript : MonoBehaviour
         if (isMoving)
         {
             // Keep the spear moving at the set speed in the given direction
-            rb.velocity = moveDirection * spearSpawner.speed;
+            rb.velocity = moveDirection * speed;
         }
     }
 
@@ -150,8 +173,52 @@ public class spearScript : MonoBehaviour
     {
         Destroy(gameObject);
     }
-}
 
+    // Method to set the spear's color
+    public void SetColor(Color color)
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = color;
+        }
+    }
+
+    // Method to start flashing
+    public void StartFlashing(Color[] colors, float duration, float interval)
+    {
+        if (flashCoroutine != null)
+            StopCoroutine(flashCoroutine);
+
+        flashColors = colors;
+        flashDuration = duration;
+        flashInterval = interval;
+
+        flashCoroutine = StartCoroutine(FlashCoroutine());
+    }
+
+    private IEnumerator FlashCoroutine()
+    {
+        isFlashing = true;
+
+        float elapsedTime = 0f;
+        int colorIndex = 0;
+        int colorsCount = flashColors.Length;
+
+        while (elapsedTime < flashDuration)
+        {
+            SetColor(flashColors[colorIndex]);
+            colorIndex = (colorIndex + 1) % colorsCount;
+
+            yield return new WaitForSeconds(flashInterval);
+            elapsedTime += flashInterval;
+        }
+
+        // Reset to original color
+        SetColor(originalColor);
+        isFlashing = false;
+        flashCoroutine = null;
+    }
+}
 
 
 

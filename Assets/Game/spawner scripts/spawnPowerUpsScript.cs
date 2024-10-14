@@ -57,6 +57,9 @@ public class spawnPowerUpsScript : MonoBehaviour
 
         switch (randomBottle)
         {
+            case 1:
+                SpawnGreenBottle();
+                break;
             case 2:
                 SpawnRedBottle();
                 break;

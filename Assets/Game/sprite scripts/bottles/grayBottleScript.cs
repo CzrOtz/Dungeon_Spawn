@@ -10,12 +10,15 @@ public class grayBottleScript : MonoBehaviour
 
     private heroScript hero;
     private spearSpawnerScript spearSpawner;
-    public float spearSpeedBottleIncrease = 1.18f;
+
+   
+    public float spearSpeedBottleIncrease = 1.08f;
 
     void Start()
     {
         spearSpawner = FindObjectOfType<spearSpawnerScript>();
-        hero = FindAnyObjectByType<heroScript>();   
+        hero = FindAnyObjectByType<heroScript>();
+        
     }
 
     void Update()
@@ -32,9 +35,10 @@ public class grayBottleScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Hero"))
         {
-            if (spearSpawner.speed > 40)
+            spearSpawner.FlashWhite();
+            if (spearSpawner.speed > 75)
             {
-                spearSpawner.speed += 5;
+                spearSpawner.speed += 1;
             }
             else
             {

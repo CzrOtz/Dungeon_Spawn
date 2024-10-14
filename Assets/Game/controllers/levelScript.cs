@@ -3,9 +3,11 @@ using TMPro;
 
 public class levelScript : MonoBehaviour
 {
-    private int level = 1; // Starting level
+    public int level = 1; // Starting level
     public TMP_Text levelText; // Reference to the UI text component for displaying the level
     public float displayTime = 1.5f; // Time to display the level text
+
+    
 
     void Start()
     {

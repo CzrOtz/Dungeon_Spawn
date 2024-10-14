@@ -10,13 +10,15 @@ public class redBottleScript : MonoBehaviour
 
     private heroScript hero;
     private spearSpawnerScript spearSpawner;
-    private float spearDamageBottleIncrease = 1.20f;
+    private float spearDamageBottleIncrease = 2f;
 
+    
     void Start()
     {
         // Reference hero and spear spawner in Start
         spearSpawner = FindObjectOfType<spearSpawnerScript>();
         hero = FindAnyObjectByType<heroScript>();
+        
     }
 
     void Update()
@@ -34,6 +36,8 @@ public class redBottleScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Hero"))
         {
+            spearSpawner.FlashRed();
+
             if (spearSpawner.damage > 100)
             {
                 spearSpawner.damage += 5;

@@ -2,18 +2,24 @@ using UnityEngine;
 
 public class greenBottleScript : MonoBehaviour
 {
-    // This script will increase the health of the hero
+    //this script makes contact with the heros colider
+    //then it will send a signal to the heros render.
+    
     [Header("Bounce Settings")]
     public float bounceAmplitude = 0.1f;  // Height of the bounce
     public float bounceFrequency = 20f;   // Speed of the bounce
     private float bounceTime;
 
     private heroScript hero;
+
+    private heroRenderScript heroRender;
     public float greenBottleHealthIncrease = 25f;
+
 
     void Start()
     {
         hero = FindObjectOfType<heroScript>();
+        heroRender = FindObjectOfType<heroRenderScript>();
     }
 
     void Update()
@@ -30,16 +36,14 @@ public class greenBottleScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Hero"))
         {
-            if (hero.health > 100)
-            {
-                hero.health += 10;
-            }
-            else
-            {
-                hero.health += greenBottleHealthIncrease;
-            }
+            hero.health += greenBottleHealthIncrease;
+
+            heroRender.FlashGreen();
+            
 
             Destroy(gameObject);
+
+
         }
     }
 
@@ -54,4 +58,5 @@ public class greenBottleScript : MonoBehaviour
         transform.localPosition = new Vector3(currentPosition.x, currentPosition.y + bounceOffset, currentPosition.z);
     }
 }
+
 

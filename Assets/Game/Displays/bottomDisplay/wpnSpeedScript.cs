@@ -22,7 +22,7 @@ public class wpnSpeedScript : MonoBehaviour
         // If the spearSpawnerScript is found, update the weapon speed display
         if (spearSpawner != null)
         {
-            weaponSpeedText.text = "WPN Speed: " + spearSpawner.speed.ToString();
+            weaponSpeedText.text = "WPN Speed: " + Mathf.RoundToInt(spearSpawner.speed).ToString();
         }
     }
 }

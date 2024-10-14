@@ -3,20 +3,18 @@ using UnityEngine.SceneManagement; // To handle scene transitions
 using System.Collections;
 public class winScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    //this script has to check a few things.
-    //1 check that all enemies are dead
-    //2 check that all the fountains are dead 
-    //there are 7 fountains
-    // we will have a public (accessible) variable at 0
-    //when a fountain dies, we will add 1 to the variable
-    // when the vartiable equals 7, the first check is complete
-    //we now have to give the fountains access to the deadFounts variable
+    
 
     public int deadFountains = 0;
 
-    //if and only if all the fountains are dead, we will check if all the enemies are dead
-    //asure that its public and give each one its own copy.
+    [Header("Normal Music")]
+    public AudioClip normalMusic;
+    public AudioSource normalMusicSource;
+
+    [Header("6 dead fountains")]
+
+    public AudioClip sixFountains;
+    public AudioSource sixFountainsSource;
     
     public static bool won = false;
     private eosScript eosScript;
@@ -43,6 +41,19 @@ public class winScript : MonoBehaviour
                 
                 StartCoroutine(TriggerWin());
                 //end the game
+            }
+        }
+
+        if (deadFountains == 6)
+        {
+            if (normalMusicSource.isPlaying)
+            {
+                normalMusicSource.Stop();  // Stop normal music
+            }
+
+            if (!sixFountainsSource.isPlaying)  // Ensure boss music is not already playing
+            {
+                sixFountainsSource.Play();  // Play the boss music
             }
         }
     }
