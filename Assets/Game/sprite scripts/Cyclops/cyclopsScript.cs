@@ -1,8 +1,7 @@
 using UnityEngine;
-using System.Collections;
 using Cinemachine;
-using System.IO;
-using Unity.VisualScripting;
+using UnityEngine.AI;
+using UnityEditor.SceneManagement;
 
 public class cyclopsScript : MonoBehaviour
 {
@@ -17,8 +16,8 @@ public class cyclopsScript : MonoBehaviour
     private scoreScript score;
     private CHScript chScript;
     public float acceleration = 0.7f;
-    private float currentSpeed = 0f;
-    private float maxSpeed;
+    // private float currentSpeed = 0f;
+    // private float maxSpeed;
     private bool isDead = false;  // To prevent multiple calls to Die()
 
     [Header("Audio")]
@@ -46,19 +45,20 @@ public class cyclopsScript : MonoBehaviour
     // Death particles
     private ParticleSystem deathParticles;
 
-    [Header("Cyclops path")]
-    private GameObject cyclopsPath1;
-    private GameObject cyclopsPath2;
+    //for navmesh
 
-    // Method to initialize cyclops values from the spawner
+    private NavMeshAgent agent;
+
+    //this is an external function. It is not used in this script
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
     {
         speed = initialSpeed;
         attack_damage = initialDamage;
         health = initialHealth;
 
-        maxSpeed = speed;
-        currentSpeed = 0f; // Reset acceleration speed
+        //removed, no longer needed.
+        // maxSpeed = speed;
+        // currentSpeed = 0f; // Reset acceleration speed
     }
 
     void Start()
@@ -67,8 +67,16 @@ public class cyclopsScript : MonoBehaviour
         enemiesOnScreen = FindAnyObjectByType<eosScript>();
         score = FindObjectOfType<scoreScript>();
         chScript = GetComponentInChildren<CHScript>();
-        cyclopsPath1 = GameObject.FindWithTag("Path1");
-        cyclopsPath2 = GameObject.FindWithTag("Path2");
+        
+        agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+        agent.speed = speed;
+
+        //SPEED IS JUST SPEED, IT CHANGES WHEN INITIALIZED
+
+        Debug.Log("agent speed " + agent.speed);
+
 
         // Get the render script from the child
         renderScript = GetComponentInChildren<cyclopsRenderScript>();
@@ -109,11 +117,7 @@ public class cyclopsScript : MonoBehaviour
         {
             chScript.MirrorHealth((int)health);
         }
-
-        maxSpeed = speed;
-
-        // Check if the Cyclops should pursue a path
-        MoveTowardsPath();
+        
     }
 
     void Update()
@@ -126,88 +130,11 @@ public class cyclopsScript : MonoBehaviour
 
     void MoveTowardsHero()
     {
-        float distance = Vector3.Distance(transform.position, heroTransform.position);
-        currentSpeed = Mathf.Lerp(currentSpeed, maxSpeed, acceleration * Time.deltaTime);
-
-        if (distance < 7f)
-        {
-            currentSpeed = Mathf.Lerp(currentSpeed, 0f, acceleration * Time.deltaTime);
-        }
-
-        transform.position = Vector3.MoveTowards(transform.position, heroTransform.position, currentSpeed * Time.deltaTime);
+        agent.SetDestination(heroTransform.position);
     }
 
-    void MoveTowardsPath()
-    {
-        if (cyclopsPath1 == null || cyclopsPath2 == null)
-        {
-            MoveTowardsHero();
-            return;
-        }
-
-        // Choose a random path (cyclopsPath1 or cyclopsPath2)
-        GameObject selectedPath = Random.Range(1, 4) > 3 ? cyclopsPath1 : cyclopsPath2;
-
-        // Calculate distances to the path and hero
-        float distanceToPath = Vector3.Distance(transform.position, selectedPath.transform.position);
-        float distanceToHero = Vector3.Distance(transform.position, heroTransform.position);
-
-        Debug.Log("FROM MOVE TOWARDS PATH DISTANCE TO HERO = " + distanceToHero);
-        Debug.Log("DISTANCE TO PATH = " + distanceToPath);
-
-        // New condition to only pursue if far enough from hero
-        if (distanceToPath <= 5f && distanceToHero > 5f)
-        {
-            // Pursue the path for 3 seconds
-            StartCoroutine(PursuePathForSeconds(selectedPath, 3f));
-        }
-        else
-        {
-            Debug.Log("Skipping pathfinding, moving towards the hero.");
-            MoveTowardsHero();
-        }
-    }
-
-    IEnumerator PursuePathForSeconds(GameObject targetPath, float duration)
-    {
-        float elapsedTime = 0f;
-
-        // Attempt to move towards the path for the full duration or until proximity conditions are met
-        while (elapsedTime < duration)
-        {
-            float distanceToPath = Vector3.Distance(transform.position, targetPath.transform.position);
-            float distanceToHero = Vector3.Distance(transform.position, heroTransform.position);
-
-            Debug.Log("Pursuing path... Time Elapsed: " + elapsedTime + " / " + duration);
-            Debug.Log("DISTANCE TO PATH = " + distanceToPath + ", DISTANCE TO HERO = " + distanceToHero);
-
-            // Keep moving towards the path unless abort conditions are met
-            if (distanceToPath <= 2f)
-            {
-                Debug.Log("Reached the path, aborting pathfinding.");
-                MoveTowardsHero();
-                yield break;
-            }
-
-            if (distanceToHero <= 5f)
-            {
-                Debug.Log("Hero too close, aborting pathfinding.");
-                MoveTowardsHero();
-                yield break;
-            }
-
-            // Actually move towards the path
-            transform.position = Vector3.MoveTowards(transform.position, targetPath.transform.position, currentSpeed * Time.deltaTime);
-            elapsedTime += Time.deltaTime;
-
-            // Wait for next frame
-            yield return null;
-        }
-
-        Debug.Log("Pursuit of the path is over, switching to hero.");
-        MoveTowardsHero();
-    }
-
+    
+    
     public void TakeDamage(float damageAmount)
     {
         health -= damageAmount;
@@ -245,8 +172,9 @@ public class cyclopsScript : MonoBehaviour
             chScript.MirrorHealth((int)health);
         }
 
-        // Stop movement
+        // Stop movement both for any agent or any movement done one the transform due to external forces
         speed = 0;
+        agent.speed = speed;
 
         // Disable colliders
         DisableColliders();
@@ -367,8 +295,6 @@ public class cyclopsScript : MonoBehaviour
         }
     }
 }
-
-
 
 
 

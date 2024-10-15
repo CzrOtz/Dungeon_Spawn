@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 
+
 public class CHScript : MonoBehaviour
 {
     public TMP_Text healthText;  // Reference to the TextMeshPro component

@@ -1,3 +1,4 @@
+using TMPro.EditorUtilities;
 using UnityEngine;
 
 public class cyclopsSpawnScript : MonoBehaviour
@@ -39,7 +40,7 @@ public class cyclopsSpawnScript : MonoBehaviour
 
     void SpawnCyclops()
     {
-        // Add to the enemies on screen
+        //this is for the display
         enemiesOnScreen.Add();
 
         // Instantiate the cyclops and pass the difficulty-related values
