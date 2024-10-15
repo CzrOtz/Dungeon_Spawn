@@ -1,7 +1,7 @@
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.AI;
-using UnityEditor.SceneManagement;
+
 
 public class cyclopsScript : MonoBehaviour
 {

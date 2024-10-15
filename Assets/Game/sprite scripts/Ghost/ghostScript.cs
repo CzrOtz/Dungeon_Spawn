@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Cinemachine;
-using System.Runtime.CompilerServices;
+using UnityEngine.AI;
 
 public class ghostScript : MonoBehaviour
 {
@@ -54,6 +54,11 @@ public class ghostScript : MonoBehaviour
     public float aliveShakeIntensity = -0.13f;
     public float deadShakeIntensity = -0.5f;
 
+    private NavMeshAgent agent;
+
+    private float chargeCooldown = 5f; // Set to 5 seconds or whatever interval you want
+    private float nextChargeTime = 0f;
+
 
 
     // Initialize method to set ghost's attributes from the spawner
@@ -64,7 +69,7 @@ public class ghostScript : MonoBehaviour
         initialHealth = health; // Save the initial health for restoration after charging
         attack_damage = initialDamage;
 
-        chargeSpeed = Random.Range(speed * 1.2f, speed * 1.5f); // Generate random charge speed
+        chargeSpeed = Random.Range(speed * 2f, speed * 5f); // Generate random charge speed
     }
 
     void Start()
@@ -79,6 +84,11 @@ public class ghostScript : MonoBehaviour
         ghScript = GetComponentInChildren<GhostHScript>();
         deathParticles = GetComponent<ParticleSystem>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
+
+        agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+        agent.speed = speed;
 
         // Ensure the particle system is stopped on spawn
         deathParticles.Stop();
@@ -110,12 +120,17 @@ public class ghostScript : MonoBehaviour
             }
 
             // Handle random charging logic
-            int rm1 = Random.Range(1, 100);
-            int rm2 = Random.Range(2, 99);
-            if (rm1 == rm2 && !isCharging)
+            if (Time.time >= nextChargeTime && !isCharging)
             {
-                StartCharging();
+                int rm1 = Random.Range(1, 500);
+                int rm2 = Random.Range(2, 499);
+                if (rm1 == rm2 && !isCharging)
+                {
+                    StartCharging();
+                    nextChargeTime = Time.time + chargeCooldown;
+                }
             }
+            
 
             // Handle charging timer and breaking distance
             if (isCharging)
@@ -142,6 +157,8 @@ public class ghostScript : MonoBehaviour
             }
 
             AffirmPauseInAudioSource2();
+
+            agent.speed = speed;
         }
 
         if (health <= 0)
@@ -154,7 +171,9 @@ public class ghostScript : MonoBehaviour
 
     void MoveTowardsHero()
     {
-        transform.position = Vector3.MoveTowards(transform.position, heroTransform.position, speed * Time.deltaTime);
+        // transform.position = Vector3.MoveTowards(transform.position, heroTransform.position, speed * Time.deltaTime);
+
+        agent.SetDestination(heroTransform.position);
     }
 
 
@@ -231,6 +250,7 @@ public class ghostScript : MonoBehaviour
         StopCharging();
 
         speed = 0; // Stop the ghost from moving
+        agent.speed = speed;
         spriteRenderer.color = Color.clear; // Make the ghost invisible
 
         // Play the death particles

@@ -1,7 +1,5 @@
 using UnityEngine;
-using System.Collections;
 using Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine.AI;
 
 public class crabScript : MonoBehaviour
@@ -241,6 +239,7 @@ public class crabScript : MonoBehaviour
         DisableColliders();
 
         speed = 0;
+        agent.speed = speed;
 
         // Play the death particles
         if (deathParticles != null)
