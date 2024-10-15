@@ -2,11 +2,11 @@ using UnityEngine;
 using System.Collections;
 using Cinemachine;
 using Unity.VisualScripting;
+using UnityEngine.AI;
 
 public class crabScript : MonoBehaviour
 {
-    public float speed;
-    public float health;
+    public float speed;    public float health;
     public float attack_damage;
     public Transform heroTransform;
     public float chargeTime = 2f;
@@ -52,13 +52,17 @@ public class crabScript : MonoBehaviour
     // Reference to crabRender script
     private crabRender renderScript;
 
+    //this is for AI
+
+    private NavMeshAgent agent;
+
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
     {
         speed = initialSpeed;
         attack_damage = initialDamage;
         health = initialHealth;
         originalSpeed = speed;
-        chargeSpeed = Random.Range(speed * 3f, speed * 5f);
+        chargeSpeed = Random.Range(speed * 3f, speed * 7f);
     }
 
     void Start()
@@ -67,6 +71,11 @@ public class crabScript : MonoBehaviour
         score = FindObjectOfType<scoreScript>();
         enemiesOnScreen = FindAnyObjectByType<eosScript>();
         crabHScript = GetComponentInChildren<CrabHTScript>();
+
+        agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+        agent.speed = speed;
 
         // Get the render script from the child
         renderScript = GetComponentInChildren<crabRender>();
@@ -130,6 +139,9 @@ public class crabScript : MonoBehaviour
             {
                 Die();
             }
+
+            //always keep the speed updated due to changing behaviors
+            agent.speed = speed;
         }
 
         
@@ -138,7 +150,9 @@ public class crabScript : MonoBehaviour
     void MoveTowardsHero()
     {
         float currentSpeed = isCharging ? chargeSpeed : speed;
-        transform.position = Vector3.MoveTowards(transform.position, heroTransform.position, currentSpeed * Time.deltaTime);
+        // transform.position = Vector3.MoveTowards(transform.position, heroTransform.position, currentSpeed * Time.deltaTime);
+        agent.SetDestination(heroTransform.position);
+        
     }
 
 
