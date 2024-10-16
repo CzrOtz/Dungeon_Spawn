@@ -52,6 +52,8 @@ public class crabScript : MonoBehaviour
 
     //this is for AI
 
+    public float heroExplosionDamageModdifyer = 3f;
+
     private NavMeshAgent agent;
 
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
@@ -370,6 +372,12 @@ public class crabScript : MonoBehaviour
                 else if (enemy.GetComponent<cyclopsScript>() != null)
                 {
                     enemy.GetComponent<cyclopsScript>().TakeDamage(explosionDamage);
+                }
+                else if (enemy.GetComponent<heroScript>() != null)
+                {
+                    explosionDamage /= heroExplosionDamageModdifyer;
+                    Debug.Log("Explosion damage to hero: " + explosionDamage);
+                    enemy.GetComponent<heroScript>().health -= explosionDamage;
                 }
             }
         }

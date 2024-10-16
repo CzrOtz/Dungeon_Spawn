@@ -59,6 +59,7 @@ public class ghostScript : MonoBehaviour
     private float chargeCooldown = 5f; // Set to 5 seconds or whatever interval you want
     private float nextChargeTime = 0f;
 
+    public float heroExplosionDamageModdifyer = 2f;
 
 
     // Initialize method to set ghost's attributes from the spawner
@@ -395,6 +396,12 @@ void DeadShake()
                 else if (enemy.GetComponent<cyclopsScript>() != null)
                 {
                     enemy.GetComponent<cyclopsScript>().TakeDamage(explosionDamage);
+                }
+                else if (enemy.GetComponent<heroScript>() != null)
+                {
+                    explosionDamage /= heroExplosionDamageModdifyer;
+                    Debug.Log("Explosion damage to hero: " + explosionDamage);
+                    enemy.GetComponent<heroScript>().health -= explosionDamage;
                 }
             }
         }

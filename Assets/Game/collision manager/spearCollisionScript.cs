@@ -105,6 +105,14 @@ public class spearCollisionScript : MonoBehaviour
             Destroy(spear);
         }
 
+        if (collision.gameObject.CompareTag("Boss"))
+        {
+            testAgentScript boss = collision.gameObject.GetComponent<testAgentScript>();
+
+            enemyHitAudioSource.PlayOneShot(enemyHitSound);
+            Destroy(spear);
+        }
+
         // Handle collision with Crab
         if (collision.gameObject.CompareTag("crab"))
         {

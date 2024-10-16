@@ -49,6 +49,8 @@ public class cyclopsScript : MonoBehaviour
 
     private NavMeshAgent agent;
 
+    public float heroExplosionDamageModdifyer = 2f;
+
     //this is an external function. It is not used in this script
     public void Initialize(float initialSpeed, float initialDamage, float initialHealth)
     {
@@ -255,6 +257,12 @@ public class cyclopsScript : MonoBehaviour
                 else if (enemy.GetComponent<cyclopsScript>() != null)
                 {
                     enemy.GetComponent<cyclopsScript>().TakeDamage(explosionDamage);
+                }
+                else if (enemy.GetComponent<heroScript>() != null)
+                {
+                    explosionDamage /= heroExplosionDamageModdifyer;
+                    Debug.Log("Explosion damage to hero: " + explosionDamage);
+                    enemy.GetComponent<heroScript>().health -= explosionDamage;
                 }
             }
         }
