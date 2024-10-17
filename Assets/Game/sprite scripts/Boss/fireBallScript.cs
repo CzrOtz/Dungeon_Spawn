@@ -37,6 +37,14 @@ public class fireBallScript : MonoBehaviour
     private float orbitSpeed;    // In radians per second
     private float currentAngle;
 
+    public AudioClip chargeSound;
+    public AudioClip movingSound;
+    public AudioSource chargeSource;
+    public AudioSource movingSource;
+
+    private bool hasPlayedChargeSound = false;
+    private bool hasPlayedMovingSound = false;
+
     void Start()
     {
         fbnCollider = GetComponent<Collider2D>();
@@ -67,6 +75,7 @@ public class fireBallScript : MonoBehaviour
 
     void Update()
     {
+        PlaySounds();
         timer += Time.deltaTime;
 
         TurnOffPhysicsUntilLaunch();
@@ -232,10 +241,14 @@ public class fireBallScript : MonoBehaviour
     // Destroy the fireball upon death
     void Die()
     {
+    
         if (isDead)
             return;
 
         isDead = true;
+
+        //stop the moving sound to play the explosion sound
+        movingSource.Stop();
 
         // Disable physics and movement
         fbRigidbody.isKinematic = true;
@@ -264,6 +277,24 @@ public class fireBallScript : MonoBehaviour
         {
             fbnCollider.enabled = true;
             fbRigidbody.isKinematic = false;
+        }
+    }
+
+    void PlaySounds()
+    {
+        if (!isLaunched && !hasPlayedChargeSound)
+        {
+            chargeSource.clip = chargeSound;
+            chargeSource.Play();
+            hasPlayedChargeSound = true;
+        }
+
+        if (isLaunched && !hasPlayedMovingSound)
+        {
+            chargeSource.Stop();
+            movingSource.clip = movingSound;
+            movingSource.Play();
+            hasPlayedMovingSound = true;
         }
     }
 
