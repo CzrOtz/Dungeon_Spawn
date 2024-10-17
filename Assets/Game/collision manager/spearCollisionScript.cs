@@ -24,10 +24,7 @@ public class spearCollisionScript : MonoBehaviour
                 Debug.LogError("spearScript not found on spear.");
             }
         }
-        else
-        {
-            Debug.Log("Spear GameObject not found yet");
-        }
+        
 
         spearSpawner = FindObjectOfType<spearSpawnerScript>();
         if (spearSpawner == null)
@@ -156,6 +153,11 @@ public class spearCollisionScript : MonoBehaviour
                 wallHitAudioSource.PlayOneShot(wallHitSound);
             }
 
+            Destroy(spear);
+        }
+
+        if (collision.gameObject.CompareTag("fireball"))
+        {
             Destroy(spear);
         }
     }

@@ -18,10 +18,19 @@ public class winScript : MonoBehaviour
     
     public static bool won = false;
     private eosScript eosScript;
+
+    public bool bossIsHere = false;
+
+    [Header("Boss Settings")]
+    public GameObject bossPrefab; // Reference to the boss prefab
+    public Transform bossSpawnPoint; // A Transform where the boss should be instantiated
+
+    
     
     void Start()
     {
         eosScript = FindObjectOfType<eosScript>();
+    
     }
 
     // Update is called once per frame
@@ -36,15 +45,19 @@ public class winScript : MonoBehaviour
         if (deadFountains == 7)
         {
             if (eosScript.enemyCount == 0)
-            {
-                won = true;
-                
-                StartCoroutine(TriggerWin());
-                //end the game
+            { 
+
+                if (eosScript.enemyCount == 0 && !bossIsHere)
+                {
+                    // Spawn the boss if the conditions are met and the boss isn't already there
+                    Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity);
+                    bossIsHere = true; // Ensure the boss doesn't spawn again
+                }
+
             }
         }
 
-        if (deadFountains == 6)
+        if (deadFountains == 7 && bossIsHere)
         {
             if (normalMusicSource.isPlaying)
             {

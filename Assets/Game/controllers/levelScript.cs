@@ -7,6 +7,7 @@ public class levelScript : MonoBehaviour
     public TMP_Text levelText; // Reference to the UI text component for displaying the level
     public float displayTime = 1.5f; // Time to display the level text
 
+    public winScript winScript;
     
 
     void Start()
@@ -17,9 +18,13 @@ public class levelScript : MonoBehaviour
 
     public void IncreaseLevel()
     {
-        // Increment the level and update the display
-        level++;
-        UpdateLevelDisplay();
+        //boss is false when its true then we dont hwant this anymore
+        if (winScript.bossIsHere == false)
+        {
+            level++;
+            UpdateLevelDisplay();
+        }
+        
     }
 
     private void UpdateLevelDisplay()

@@ -407,6 +407,13 @@ void DeadShake()
         }
     }
 
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, explosionRadius);
+    }
+
 void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)
 {
     if (impulseSource != null)

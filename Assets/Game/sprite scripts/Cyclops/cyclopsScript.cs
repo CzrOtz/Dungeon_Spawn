@@ -268,6 +268,12 @@ public class cyclopsScript : MonoBehaviour
         }
     }
 
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, explosionRadius);
+    }
+
     void DisableColliders()
     {
         Collider2D[] colliders = GetComponents<Collider2D>();

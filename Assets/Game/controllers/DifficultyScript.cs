@@ -19,27 +19,33 @@ public class DifficultyScript : MonoBehaviour
     [SerializeField] private List<cyclopsSpawnScript> cyclopsSpawners = new List<cyclopsSpawnScript>();
     [SerializeField] private List<crabSpawnScript> crabSpawners = new List<crabSpawnScript>();
 
+    public winScript winScript;
+
     // Update is called once per frame
     void Update()
     {
-        // Track elapsed time based on the game's master timer (timeScript)
-        elapsedTime += Time.deltaTime;
-
-        // Check if the elapsed time exceeds the duration of the current level
-        if (elapsedTime >= durationOfLevel)
+        if (winScript.bossIsHere == false)
         {
-            // Reset the timer for the next level
-            elapsedTime = 0f;
+                // Track elapsed time based on the game's master timer (timeScript)
+            elapsedTime += Time.deltaTime;
 
-            // Increase the level
-            levelScript.IncreaseLevel();
+            // Check if the elapsed time exceeds the duration of the current level
+            if (elapsedTime >= durationOfLevel)
+            {
+                // Reset the timer for the next level
+                elapsedTime = 0f;
+
+                // Increase the level
+                levelScript.IncreaseLevel();
             
 
-            // Increase the difficulty for all entities
-            IncreaseGhostDifficulty();
-            IncreaseCyclopsDifficulty();
-            IncreaseCrabDifficulty();
+                // Increase the difficulty for all entities
+                IncreaseGhostDifficulty();
+                IncreaseCyclopsDifficulty();
+                IncreaseCrabDifficulty();
+            }
         }
+ 
     }
 
     void IncreaseGhostDifficulty()

@@ -5,7 +5,8 @@ using Cinemachine;
 
 public class testAgentScript : MonoBehaviour
 {
-    [SerializeField] Transform target;
+    // [SerializeField] Transform target;
+    private heroScript target;
     [SerializeField] List<ParticleSystem> particleSystems;  // List to hold particle systems
     public float health = 20000f; // Boss health
     private spearSpawnerScript spearSpawner;
@@ -34,6 +35,7 @@ public class testAgentScript : MonoBehaviour
         agent.updateRotation = false;
         agent.updateUpAxis = false;
         spearSpawner = FindObjectOfType<spearSpawnerScript>();
+        target = FindObjectOfType<heroScript>();
 
         if (healthText == null)
         {
@@ -48,29 +50,31 @@ public class testAgentScript : MonoBehaviour
 
     void Update()
     {
-        agent.SetDestination(target.position);
+        agent.SetDestination(target.transform.position);
         healthText.MirrorHealth((int)health);  // Update the health text
+       
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Spear"))
         {
-            // Decrease health
-            health -= spearSpawner.damage;
+            TakeDamage(spearSpawner.damage);
+        }
+    }
 
-            // Determine if particles should be emitted
-            bool shouldEmit = EmitParticles();
+    public void TakeDamage(float damage)
+    {
+        health -= damage;
+        bool shouldEmit = EmitParticles();
 
-            // Trigger appropriate shake and explosion
-            if (shouldEmit)
-            {
-                TriggerShake(explosionShakeIntensity); // Stronger shake with particles
-            }
-            else
-            {
-                TriggerShake(normalShakeIntensity);  // Regular shake without particles
-            }
+        if (shouldEmit)
+        {
+            TriggerShake(explosionShakeIntensity); // Stronger shake with particles
+        }
+        else
+        {
+            TriggerShake(normalShakeIntensity);  // Regular shake without particles
         }
     }
 
@@ -90,7 +94,19 @@ public class testAgentScript : MonoBehaviour
             int index = validNumbers.IndexOf(lotteryDraw);
             if (index < particleSystems.Count)
             {
-                particleSystems[index].Play();  // Play the corresponding particle system
+                // Play the corresponding particle system
+                particleSystems[index].Play();  
+            
+                // Play the audio attached to the same object as the particle system
+                AudioSource audioSource = particleSystems[index].GetComponent<AudioSource>();
+                if (audioSource != null)
+                {
+                    audioSource.Play();
+                }
+                else
+                {
+                    Debug.LogWarning("No AudioSource found on particle system at index: " + index);
+                }
 
                 ExplodeHeroAway(); // Push back the hero when particles are emitted
 
@@ -137,7 +153,6 @@ public class testAgentScript : MonoBehaviour
                 float damage = (explosionDamage * forceMultiplier) / heroExplosionDamageModifier;
                 hero.GetComponent<heroScript>().health -= damage;
 
-                Debug.Log("Applying explosion force and damage to hero: " + damage + " with force magnitude: " + forceMagnitude);
             }
         }
     }
