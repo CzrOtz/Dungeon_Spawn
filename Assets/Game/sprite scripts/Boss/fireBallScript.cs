@@ -1,5 +1,7 @@
 using UnityEngine;
 using Cinemachine;
+using JetBrains.Annotations;
+using Unity.VisualScripting;
 
 public class fireBallScript : MonoBehaviour
 {
@@ -33,6 +35,7 @@ public class fireBallScript : MonoBehaviour
 
     // Orbit variables
     private Transform boss;
+    private testAgentScript bossScript;
     private float orbitRadius;
     private float orbitSpeed;    // In radians per second
     private float currentAngle;
@@ -45,10 +48,14 @@ public class fireBallScript : MonoBehaviour
     private bool hasPlayedChargeSound = false;
     private bool hasPlayedMovingSound = false;
 
+    private scoreScript scoreScript;
+
     void Start()
     {
         fbnCollider = GetComponent<Collider2D>();
         fbRigidbody = GetComponent<Rigidbody2D>();
+        scoreScript = FindObjectOfType<scoreScript>();
+        bossScript = FindObjectOfType<testAgentScript>();
 
         // Ensure the hero reference is set
         if (hero == null)
@@ -102,6 +109,11 @@ public class fireBallScript : MonoBehaviour
         {
             Die();
         }
+
+        if (bossScript.dead)
+        {
+            Die();
+        }
     }
 
     // Orbit around the boss while waiting for launch
@@ -150,7 +162,7 @@ public class fireBallScript : MonoBehaviour
             {
                 impulseSource.GenerateImpulse();
             }
-
+            scoreScript.IncreaseScore(51); // Increase the score
             // Ensure Rigidbody2D is non-kinematic and apply force from the spear
             fbRigidbody.isKinematic = false;
             Vector2 forceDirection = collision.relativeVelocity.normalized;
@@ -162,6 +174,7 @@ public class fireBallScript : MonoBehaviour
             // Explode upon collision with hero
             Die();
         }
+
     }
 
     // Emit explosion and apply damage
@@ -233,6 +246,7 @@ public class fireBallScript : MonoBehaviour
                 if (bossScript != null)
                 {
                     bossScript.TakeDamage(damage);
+                    scoreScript.IncreaseScore(177);
                 }
             }
         }

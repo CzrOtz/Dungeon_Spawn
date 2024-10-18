@@ -7,11 +7,16 @@ public class spawnHealtScript : MonoBehaviour
     private greenLiquidScript[] greenLiquidScripts;  // Reference to greenLiquidScript instances
 
     public winScript checkWin;  // Reference to the checkWin script
+    
+    private scoreScript scoreScript;  // Reference to the score script
+
 
     void Start()
     {
         // Find all instances of greenLiquidScript attached to this specific spawn point
         greenLiquidScripts = GetComponentsInChildren<greenLiquidScript>(); // Now, only affects greenLiquidScripts under this spawn point's hierarchy
+        scoreScript = FindObjectOfType<scoreScript>();
+        
     }
 
     // Method to reduce health
@@ -21,6 +26,7 @@ public class spawnHealtScript : MonoBehaviour
         if (isDead) return;
 
         health -= damage;
+        scoreScript.IncreaseScore((int)damage);  // Increase the score
 
         // Clamp health to 0 and mark as dead when health reaches 0
         if (health <= 0 && !isDead)

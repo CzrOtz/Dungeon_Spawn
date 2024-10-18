@@ -1,13 +1,17 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections.Generic;
+using System.Collections;
 using Cinemachine;
+using TMPro;
 
 public class testAgentScript : MonoBehaviour
 {
     // [SerializeField] Transform target;
     private heroScript target;
     [SerializeField] List<ParticleSystem> particleSystems;  // List to hold particle systems
+
+    public ParticleSystem deathParticles; // Particle system for death
     public float health = 20000f; // Boss health
     private spearSpawnerScript spearSpawner;
     public BossHealthText healthText;
@@ -17,6 +21,8 @@ public class testAgentScript : MonoBehaviour
     [Header("Shake Intensities")]
     public float normalShakeIntensity = -0.1f;   // Normal shake intensity when hit
     public float explosionShakeIntensity = -0.5f; // Stronger shake for particle emission hit
+
+    public float deadshakeIntensity = -1f; // Shake duration
 
     [Header("Explosion Visual Physics")]
     public float explosionRadius = 50f;  // Radius of the explosion
@@ -29,6 +35,12 @@ public class testAgentScript : MonoBehaviour
 
     NavMeshAgent agent;
 
+    private scoreScript scoreScript;
+
+    public bool dead = false;
+
+    
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -36,6 +48,8 @@ public class testAgentScript : MonoBehaviour
         agent.updateUpAxis = false;
         spearSpawner = FindObjectOfType<spearSpawnerScript>();
         target = FindObjectOfType<heroScript>();
+        scoreScript = FindObjectOfType<scoreScript>();
+        
 
         if (healthText == null)
         {
@@ -52,6 +66,11 @@ public class testAgentScript : MonoBehaviour
     {
         agent.SetDestination(target.transform.position);
         healthText.MirrorHealth((int)health);  // Update the health text
+
+        if (health <= 0)
+        {
+            Die();
+        }
        
     }
 
@@ -76,6 +95,8 @@ public class testAgentScript : MonoBehaviour
         {
             TriggerShake(normalShakeIntensity);  // Regular shake without particles
         }
+
+        scoreScript.IncreaseScore(13); // Increase the score
     }
 
     void TriggerShake(float shakeIntensity)
@@ -86,6 +107,7 @@ public class testAgentScript : MonoBehaviour
 
     bool EmitParticles()
     {
+
         int lotteryDraw = Random.Range(1, 11);  // Random draw from 1 to 10
         List<int> validNumbers = new List<int> { 2, 4, 5, 7 };  // Valid numbers for emission
 
@@ -154,10 +176,45 @@ public class testAgentScript : MonoBehaviour
                 hero.GetComponent<heroScript>().health -= damage;
 
             }
+
+            
         }
     }
 
-    // Optional: Visualize the explosion radius in the editor
+
+    public void Die()
+    {
+        if (!dead)
+        {
+            TriggerShake(deadshakeIntensity); // Shake the camera when the boss dies
+            dead = true; // Set dead flag to true to ensure it doesn't get called again.
+
+            // Play the death sound and particles
+            if (deathParticles != null)
+            {
+                AudioSource deathExplosion = deathParticles.GetComponent<AudioSource>();
+                if (deathExplosion != null)
+                {
+                    deathExplosion.Play();
+                }
+
+                deathParticles.Play();
+            }
+
+            
+            
+            
+
+            // Increase the score by 1000 points
+            scoreScript.IncreaseScore(1000);
+
+            // Destroy the boss after a delay to allow the death animation/sound to finish
+            Destroy(gameObject, 2f);
+        }
+    }
+
+   
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;

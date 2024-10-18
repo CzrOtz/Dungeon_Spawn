@@ -13,6 +13,8 @@ public class fireBallSpawn : MonoBehaviour
     public float launchInterval = 1f;         // Time between each fireball's launch
     public float coolDown = 10f;              // Cooldown time after all fireballs are destroyed
 
+    public float waitToSpawn = 10f;
+
     private List<GameObject> spawnedFireBalls = new List<GameObject>();
     private bool isSpawning = false;
 
@@ -23,6 +25,8 @@ public class fireBallSpawn : MonoBehaviour
 
     IEnumerator SpawnFireBallsCoroutine()
     {
+        yield return new WaitForSeconds(waitToSpawn);
+
         while (true)
         {
             // Spawn fireballs
@@ -50,6 +54,7 @@ public class fireBallSpawn : MonoBehaviour
 
     void SpawnFireBall(int index)
     {
+
         // Calculate the angle for positioning (in radians)
         float angle = index * Mathf.PI * 2f / numberOfFireBalls;
         Vector3 spawnPosition = transform.position + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * rotationRadius;

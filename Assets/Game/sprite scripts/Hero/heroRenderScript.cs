@@ -110,6 +110,8 @@ public class heroRenderScript : MonoBehaviour
         }
     }
 
+    
+
     public void FlashGreen()
     {
         StartCoroutine(FlashGreenCoroutine());

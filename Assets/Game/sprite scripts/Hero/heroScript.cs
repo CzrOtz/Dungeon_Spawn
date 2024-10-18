@@ -94,6 +94,8 @@ public class heroScript : MonoBehaviour
         
     }
 
+
+
     void OnCollisionExit2D(Collision2D collision)
     {
         collisionManager.ManageCollisions(collision);

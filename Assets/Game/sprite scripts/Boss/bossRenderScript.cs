@@ -30,6 +30,8 @@ public class bossRenderScript : MonoBehaviour
         {
             Debug.LogError("boss not found on parent object");
         }
+
+       
         
         
     }
@@ -37,6 +39,11 @@ public class bossRenderScript : MonoBehaviour
      void Update()
     {
         HandleBounce();
+        
+        if (boss.dead)
+        {
+            spriteRenderer.color = Color.clear;
+        }
     }
 
     void HandleBounce()
@@ -54,10 +61,7 @@ public class bossRenderScript : MonoBehaviour
         }
     }
 
-    public void Die()
-    {
-        Destroy(gameObject);
-    }
+    
 
     // Update is called once per frame
    

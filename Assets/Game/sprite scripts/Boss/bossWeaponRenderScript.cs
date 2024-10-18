@@ -24,7 +24,7 @@ public class bossWeaponRenderScript : MonoBehaviour
 
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        boss = GetComponentInParent<testAgentScript>();
+        boss = FindObjectOfType<testAgentScript>();
         
         if (boss == null)
         {
@@ -37,6 +37,11 @@ public class bossWeaponRenderScript : MonoBehaviour
      void Update()
     {
         HandleBounce();
+        
+        if (boss.dead)
+        {
+            spriteRenderer.color = Color.clear;
+        }
     }
 
     void HandleBounce()
