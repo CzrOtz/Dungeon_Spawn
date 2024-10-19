@@ -11,6 +11,10 @@ public class heroEnemyScript : MonoBehaviour
     private heroScript heroScript;
 
     private heroHealthDisplayScript heroHealthDisplay;
+
+    private testAgentScript boss;
+
+    private fireBallScript fireBall;
     void Start()
     {
         heroHealthDisplay = FindObjectOfType<heroHealthDisplayScript>();
@@ -18,6 +22,8 @@ public class heroEnemyScript : MonoBehaviour
         cyclops = FindObjectOfType<cyclopsScript>();
         crab = FindObjectOfType<crabScript>();
         hero = GameObject.FindGameObjectWithTag("Hero");
+        boss = FindObjectOfType<testAgentScript>();
+        fireBall = FindObjectOfType<fireBallScript>();
         
 
         if (hero != null)
@@ -117,6 +123,40 @@ public class heroEnemyScript : MonoBehaviour
             else
             {
                 Debug.LogError("crab not found in colide 2d");
+            }
+        }
+
+        if (collision.gameObject.CompareTag("Boss"))
+        {
+            testAgentScript boss = collision.gameObject.GetComponent<testAgentScript>();
+            if (boss != null)
+            {
+                heroScript.health -= boss.attack_damage;
+                heroScript.health = Mathf.Round(heroScript.health * 100f) / 100f;
+
+                
+
+                UpDateHealthDisplay();
+            }
+            else
+            {
+                Debug.LogError("boss not found in colide 2d");
+            }
+        }
+
+        if (collision.gameObject.CompareTag("fireball"))
+        {
+            fireBallScript fireball = collision.gameObject.GetComponent<fireBallScript>();
+
+            if (fireball != null)
+            {
+                heroScript.takingDamage = true;
+
+                UpDateHealthDisplay();
+            }
+            else
+            {
+                Debug.LogError("spear not found in colide 2d");
             }
         }
     }

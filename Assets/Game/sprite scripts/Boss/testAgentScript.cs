@@ -39,7 +39,11 @@ public class testAgentScript : MonoBehaviour
 
     public bool dead = false;
 
+    public float attack_damage = 1f;
+
+    private KcountScript killCount;
     
+    private eosScript eos;
 
     void Start()
     {
@@ -49,6 +53,10 @@ public class testAgentScript : MonoBehaviour
         spearSpawner = FindObjectOfType<spearSpawnerScript>();
         target = FindObjectOfType<heroScript>();
         scoreScript = FindObjectOfType<scoreScript>();
+        killCount = FindObjectOfType<KcountScript>();
+        eos = FindObjectOfType<eosScript>();
+
+        eos.Add();
         
 
         if (healthText == null)
@@ -79,8 +87,11 @@ public class testAgentScript : MonoBehaviour
         if (collision.gameObject.CompareTag("Spear"))
         {
             TakeDamage(spearSpawner.damage);
+
         }
     }
+
+   
 
     public void TakeDamage(float damage)
     {
@@ -203,7 +214,9 @@ public class testAgentScript : MonoBehaviour
 
             
             
-            
+            killCount.IncreaseKillCount(); // Increase the kill count
+
+            eos.Subtract(); // Decrease the enemy on screen count
 
             // Increase the score by 1000 points
             scoreScript.IncreaseScore(1000);

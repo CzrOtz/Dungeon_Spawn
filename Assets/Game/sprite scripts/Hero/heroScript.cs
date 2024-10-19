@@ -83,7 +83,7 @@ public class heroScript : MonoBehaviour
     {
         collisionManager.ManageCollisions(collision);
 
-        if (collision.gameObject.CompareTag("wall"))
+        if (collision.gameObject.CompareTag("wall") || collision.gameObject.CompareTag("spawnPoint"))
         {
            takingDamage = false;
         }
