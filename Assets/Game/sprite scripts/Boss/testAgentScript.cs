@@ -45,6 +45,8 @@ public class testAgentScript : MonoBehaviour
     
     private eosScript eos;
 
+    public bool canTakeDamage = false;
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -84,11 +86,19 @@ public class testAgentScript : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Spear"))
+        if (canTakeDamage)
         {
-            TakeDamage(spearSpawner.damage);
+            if (collision.gameObject.CompareTag("Spear"))
+            {
+                TakeDamage(spearSpawner.damage);
 
+            }
         }
+        else
+        {
+            return;
+        }
+            
     }
 
    

@@ -243,7 +243,7 @@ public class fireBallScript : MonoBehaviour
             if (obj.CompareTag("Boss"))
             {
                 var bossScript = obj.GetComponent<testAgentScript>();
-                if (bossScript != null)
+                if (bossScript != null && bossScript.canTakeDamage)
                 {
                     bossScript.TakeDamage(damage);
                     scoreScript.IncreaseScore(177);

@@ -51,7 +51,6 @@ public class winScript : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         CheckForWin();
@@ -108,9 +107,29 @@ public class winScript : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            // Boss is present
+            if (deadFountains >= 7)
+            {
+                // All fountains destroyed, make boss vulnerable
+                if (bossScript != null)
+                {
+                    bossScript.canTakeDamage = true;
+                }
+            }
+            else
+            {
+                // Fountains remain, boss is invulnerable
+                if (bossScript != null)
+                {
+                    bossScript.canTakeDamage = false;
+                }
+            }
+        }
 
-        // Check if the boss is defeated to trigger the win
-        if (bossIsHere && bossScript != null && bossScript.dead)
+        // Check if win conditions are met
+        if (bossScript.dead && deadFountains == 7 && eosScript.enemyCount == 0)
         {
             won = true;
             if (lightingInstance != null)
@@ -118,6 +137,12 @@ public class winScript : MonoBehaviour
                 Destroy(lightingInstance);
             }
             StartCoroutine(TriggerWin());
+        }
+        else
+        {
+            Debug.Log("bossscript.dead " + bossScript.dead);
+            Debug.Log("dead fountains " + deadFountains);
+            Debug.Log("eos.enemyCount " + eosScript.enemyCount);
         }
     }
 
@@ -162,7 +187,13 @@ public class winScript : MonoBehaviour
         GameObject bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity);
         bossScript = bossInstance.GetComponent<testAgentScript>(); // Get the boss script from the spawned boss
         bossIsHere = true; // Ensure the boss doesn't spawn again
-        lightingInstance = Instantiate(lightPrefab, new Vector3(7, 16, 0), Quaternion.identity); 
+        lightingInstance = Instantiate(lightPrefab, new Vector3(7, 16, 0), Quaternion.identity);
+
+        // Initially, the boss cannot take damage
+        if (bossScript != null)
+        {
+            bossScript.canTakeDamage = false;
+        }
     }
 
     IEnumerator TriggerWin()
