@@ -138,12 +138,7 @@ public class winScript : MonoBehaviour
             }
             StartCoroutine(TriggerWin());
         }
-        else
-        {
-            Debug.Log("bossscript.dead " + bossScript.dead);
-            Debug.Log("dead fountains " + deadFountains);
-            Debug.Log("eos.enemyCount " + eosScript.enemyCount);
-        }
+        
     }
 
     // Method to start the build-up music and stop normal music

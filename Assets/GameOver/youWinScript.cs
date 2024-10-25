@@ -13,6 +13,10 @@ public class youWinScript : MonoBehaviour
 
     public TMP_Text winMessage;  // Reference to the TextMeshPro component
 
+    public DataCollector1Script gameOData;  // Reference to the DataCollector1Script
+
+    public bool win;
+
     void Start()
     {
         // Check if the static win variable is true
@@ -25,6 +29,8 @@ public class youWinScript : MonoBehaviour
             audioSource2.clip = youWinSound;
             audioSource2.loop = true;  // Enable looping for the win sound
             audioSource2.Play();       // Play the win sound
+            win = true;
+            gameOData.winOrLose(win);
         }
         else
         {
@@ -33,6 +39,8 @@ public class youWinScript : MonoBehaviour
 
             // Play the lose sound without looping
             audioSource1.PlayOneShot(youLoseSound);
+            win = false;
+            gameOData.winOrLose(win);
         }
     }
 }

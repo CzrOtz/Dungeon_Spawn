@@ -48,3 +48,14 @@ Thumbs.db
 *.index
 *.plastic
 *.conf
+*.exe
+*.dll
+*.xml
+*.py
+*.a
+*.srcaar
+*.pom
+*.bundle
+*.so
+*CHANGELOG.md
+*LICENSE

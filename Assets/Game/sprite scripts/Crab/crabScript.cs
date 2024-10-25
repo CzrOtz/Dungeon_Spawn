@@ -376,7 +376,6 @@ public class crabScript : MonoBehaviour
                 else if (enemy.GetComponent<heroScript>() != null)
                 {
                     explosionDamage /= heroExplosionDamageModdifyer;
-                    Debug.Log("Explosion damage to hero: " + explosionDamage);
                     enemy.GetComponent<heroScript>().health -= explosionDamage;
                 }
             }

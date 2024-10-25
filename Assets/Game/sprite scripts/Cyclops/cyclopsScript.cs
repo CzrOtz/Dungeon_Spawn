@@ -77,7 +77,7 @@ public class cyclopsScript : MonoBehaviour
 
         //SPEED IS JUST SPEED, IT CHANGES WHEN INITIALIZED
 
-        Debug.Log("agent speed " + agent.speed);
+        
 
 
         // Get the render script from the child
@@ -231,7 +231,7 @@ public class cyclopsScript : MonoBehaviour
             Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
             if (rb != null && enemy.gameObject != this.gameObject)
             {
-                Debug.Log("Applying explosion force to: " + enemy.gameObject.name + " on layer: " + LayerMask.LayerToName(enemy.gameObject.layer));
+                
                 // Apply explosion force to the enemy's Rigidbody2D
                 Vector2 direction = (rb.position - explosionPosition).normalized;
                 rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
@@ -261,7 +261,6 @@ public class cyclopsScript : MonoBehaviour
                 else if (enemy.GetComponent<heroScript>() != null)
                 {
                     explosionDamage /= heroExplosionDamageModdifyer;
-                    Debug.Log("Explosion damage to hero: " + explosionDamage);
                     enemy.GetComponent<heroScript>().health -= explosionDamage;
                 }
             }

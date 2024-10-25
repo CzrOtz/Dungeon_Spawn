@@ -8,6 +8,6 @@ public class plyaButtonScript : MonoBehaviour
     public void PlayGame()
     {
         SceneManager.LoadScene("GameScene"); // Replace "GameScene" with the name of your game scene
-        Debug.Log("button clicked");
+        
     }
 }
