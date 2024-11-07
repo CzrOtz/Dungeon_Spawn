@@ -9,7 +9,7 @@ public class mainMenuContollerScript : MonoBehaviour
 
     public GameObject leaderboard;
 
-    
+    public GameObject userNameMenu;
    
     void Start()
     {
@@ -17,6 +17,7 @@ public class mainMenuContollerScript : MonoBehaviour
         instructionsMenu.SetActive(false);
         creditsMenu.SetActive(false);
         leaderboard.SetActive(false);
+        userNameMenu.SetActive(false);
     }
 
     public void triggerMainMenu()
@@ -25,6 +26,7 @@ public class mainMenuContollerScript : MonoBehaviour
         instructionsMenu.SetActive(false);
         creditsMenu.SetActive(false);
         leaderboard.SetActive(false);
+        userNameMenu.SetActive(false);
     }
 
     public void triggerInstructionsMenu()
@@ -33,6 +35,7 @@ public class mainMenuContollerScript : MonoBehaviour
         instructionsMenu.SetActive(true);
         creditsMenu.SetActive(false);
         leaderboard.SetActive(false);
+        userNameMenu.SetActive(false);
     }
 
     public void triggerCreditsMenu()
@@ -41,6 +44,7 @@ public class mainMenuContollerScript : MonoBehaviour
         instructionsMenu.SetActive(false);
         creditsMenu.SetActive(true);
         leaderboard.SetActive(false);
+        userNameMenu.SetActive(false);
     }
 
     public void triggerLeaderboard()
@@ -49,5 +53,15 @@ public class mainMenuContollerScript : MonoBehaviour
         instructionsMenu.SetActive(false);
         creditsMenu.SetActive(false);
         leaderboard.SetActive(true);
+        userNameMenu.SetActive(false);
+    }
+
+    public void triggerUserNameMenu()
+    {
+        mainMenu.SetActive(false);
+        instructionsMenu.SetActive(false);
+        creditsMenu.SetActive(false);
+        leaderboard.SetActive(false);
+        userNameMenu.SetActive(true);
     }
 }

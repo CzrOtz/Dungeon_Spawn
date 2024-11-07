@@ -5,14 +5,25 @@ using Firebase.Extensions;
 
 public class testDataScript : MonoBehaviour
 {
+    public static testDataScript Instance { get; private set; }
     private DatabaseReference reference;
+    public bool isFirebaseInitialized { get; private set; } = false;
 
     void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            InitializeFirebase();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    void Start()
+    private void InitializeFirebase()
     {
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
         {
@@ -20,6 +31,7 @@ public class testDataScript : MonoBehaviour
             {
                 FirebaseApp app = FirebaseApp.DefaultInstance;
                 reference = FirebaseDatabase.DefaultInstance.RootReference;
+                isFirebaseInitialized = true;
                 Debug.Log("Firebase Initialized and ready to use.");
             }
             else
@@ -29,17 +41,18 @@ public class testDataScript : MonoBehaviour
         });
     }
 
-   public void SendWinningDataToDatabase(WinningData winningData)
+    // Method to send data to Firebase
+    public void SendWinningDataToDatabase(WinningData winningData)
     {
-        // Debug.Log("1 This section is now prepping the data to be sent through the pipeline");
+        if (!isFirebaseInitialized)
+        {
+            Debug.LogError("Firebase is not initialized yet!");
+            return;
+        }
 
-        // Generate a unique key for each winning run
         string uniqueKey = reference.Child("winning_run").Push().Key;
-
         string jsonData = JsonUtility.ToJson(winningData);
-        // Debug.Log("3 this is the prepped data -> " + jsonData);
 
-        // Use the unique key to create a new sub-node under "winning_run"
         reference.Child("winning_run").Child(uniqueKey)
             .SetRawJsonValueAsync(jsonData)
             .ContinueWithOnMainThread(task =>
@@ -54,7 +67,22 @@ public class testDataScript : MonoBehaviour
                 }
             });
     }
+
+    public DatabaseReference GetReference()
+    {
+        if (isFirebaseInitialized)
+        {
+            return reference;
+        }
+        else
+        {
+            Debug.LogError("Firebase not initialized yet!");
+            return null;
+        }
+    }
 }
+
+
 
 
 

@@ -8,13 +8,15 @@ public class DataCollector1Script : MonoBehaviour
     public int minute;
     public int second;
     public int kills;
-    public string playerName = "Dev_Testing_1";  // Default player name for testing
+    public string playerName;  // Default player name for testing
     public bool win;
 
     public int points;  // Total points for the run
 
     void Start()
     {
+        playerName = PlayerPrefs.GetString("currentUsername", "Not_Set"); // Fallback to "Dev_Testing_1" if not set
+
         if (win)
         {
             WinningRunData();
@@ -85,17 +87,15 @@ public class DataCollector1Script : MonoBehaviour
                 points = points  // Attach calculated points to the winning data
             };
 
-            var testDataScript = FindObjectOfType<testDataScript>();
-            if (testDataScript != null)
+            if (testDataScript.Instance != null)
             {
-                testDataScript.SendWinningDataToDatabase(winningData);
-                // Debug.Log("Winning run data sent to database.");
-                // Debug.Log("Winning data details: " + winningData);
+                testDataScript.Instance.SendWinningDataToDatabase(winningData);
             }
             else
             {
-                Debug.LogError("testDataScript not found in the scene. Ensure it persists across scenes.");
+                Debug.LogError("testDataScript instance not initialized.");
             }
+
         }
     }
 }

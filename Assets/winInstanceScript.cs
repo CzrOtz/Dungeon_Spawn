@@ -1,27 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class winInstanceScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    //all of these game objects contain a text mesh pro component
     [Header("TextMeshPro Objects")]
-    public GameObject rankingTXT;
-    public GameObject playerNameTXT;
-    public GameObject pointsTXT;
-    public GameObject killTXT;
-    public GameObject timeTXT;
-    public GameObject scoreTXT;
+    public TMP_Text rankingTXT;
+    public TMP_Text playerNameTXT;
+    public TMP_Text pointsTXT;
+    public TMP_Text killTXT;
+    public TMP_Text timeTXT;
+    public TMP_Text scoreTXT;
 
-    void Start()
+    // Set data for each instance
+    public void SetData(int rank, WinningData data)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        rankingTXT.text = rank.ToString();
+        playerNameTXT.text = data.playerName;
+        pointsTXT.text = data.points.ToString();
+        killTXT.text = data.kills.ToString();
+        timeTXT.text = data.time;
+        scoreTXT.text = data.score.ToString();
     }
 }
