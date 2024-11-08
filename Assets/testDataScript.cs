@@ -32,7 +32,7 @@ public class testDataScript : MonoBehaviour
                 FirebaseApp app = FirebaseApp.DefaultInstance;
                 reference = FirebaseDatabase.DefaultInstance.RootReference;
                 isFirebaseInitialized = true;
-                Debug.Log("Firebase Initialized and ready to use.");
+                
             }
             else
             {

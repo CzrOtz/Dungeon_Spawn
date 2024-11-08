@@ -46,6 +46,7 @@ public class UserNameScript : MonoBehaviour
         currentUsername = userNameInput.text;
         if (ValidateUsername(currentUsername))
         {
+            PlayerPrefs.DeleteKey("currentUsername");
             StartCoroutine(ValidateAndSaveUsername());
         }
     }

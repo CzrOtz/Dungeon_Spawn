@@ -56,14 +56,14 @@ public class DataCollector1Script : MonoBehaviour
         points = 0;
 
         // Calculate points for kills, score, and time
-        Debug.Log("Calculating points for this run...");
-        Debug.Log("points 1:   " + points);
+        
+        
         points += kills;  // Flat rate for kills
-        Debug.Log("points 2:   " + points);
+        
         points += (int)(score / 100);  // Scaled down score
-        Debug.Log("points 3:   " + points);
+        
         points += (int)(1000 * Mathf.Exp(-0.00288f * (hour * 3600 + minute * 60 + second - 600)));  // Exponential time scoring
-        Debug.Log("points 4:   " + points);
+        
         
         
     }

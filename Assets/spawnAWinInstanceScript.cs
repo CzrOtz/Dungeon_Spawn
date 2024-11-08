@@ -27,16 +27,16 @@ public class spawnAWinInstanceScript : MonoBehaviour
 
     private IEnumerator WaitForFirebaseInitialization()
     {
-        Debug.Log("Step 2 --> Waiting for Firebase initialization...");
+        
         while (!testDataScriptInstance.isFirebaseInitialized)
         {
             yield return null;
-            Debug.Log("Step 2.5 --> Still waiting for Firebase initialization...");
+            
         }
 
         // Firebase is ready
         reference = testDataScriptInstance.GetReference().Child("winning_run");
-        Debug.Log("Step 2.75 --> Firebase initialized and DatabaseReference acquired.");
+        
         
         PopulateLeaderboard();
     }
@@ -44,7 +44,7 @@ public class spawnAWinInstanceScript : MonoBehaviour
     
     void OnEnable() 
     {
-        Debug.Log("Step 3 --> OnEnable() called. Preparing to populate leaderboard.");
+        
         
         if (testDataScriptInstance != null && testDataScriptInstance.isFirebaseInitialized)
         {
@@ -56,13 +56,13 @@ public class spawnAWinInstanceScript : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Step 3.5 --> testDataScript instance not found in the scene during OnEnable.");
+            Debug.Log("Step 3.5 --> testDataScript instance not found in the scene during OnEnable.");
         }
     }
 
     public void PopulateLeaderboard()
     {
-        Debug.Log("Step 4 --> Clearing previous leaderboard instances.");
+        
         
         // Clear previous instances
         foreach (Transform child in container)
@@ -72,12 +72,12 @@ public class spawnAWinInstanceScript : MonoBehaviour
 
         // Fetch data and populate
         FetchAndDisplayData();
-        Debug.Log("Step 4.5 --> Fetching and displaying leaderboard data.");
+        
     }
 
     private void FetchAndDisplayData()
     {
-        Debug.Log("Step 5 --> Fetching leaderboard data from Firebase...");
+        
     
         reference.GetValueAsync().ContinueWithOnMainThread(task =>
         {
@@ -107,12 +107,12 @@ public class spawnAWinInstanceScript : MonoBehaviour
 
                 // Sort by points in descending order
                 winDataList.Sort((x, y) => y.points.CompareTo(x.points));
-                Debug.Log("Step 6 --> Data sorted by points in descending order.");
+                
 
                 // Spawn and populate each instance
                 for (int i = 0; i < winDataList.Count; i++)
                 {
-                    Debug.Log($"Step 7 --> Spawning win instance {i + 1} with points: {winDataList[i].points}");
+                    
                 
                     GameObject winInstance = Instantiate(winInstancePrefab, container);
                     if (winInstance == null)
@@ -125,7 +125,7 @@ public class spawnAWinInstanceScript : MonoBehaviour
                     if (instanceScript != null)
                     {
                         instanceScript.SetData(i + 1, winDataList[i]);
-                        Debug.Log($"Step 7.5 --> Win instance populated with data: {winDataList[i]}");
+                        
                     }
                     else
                     {

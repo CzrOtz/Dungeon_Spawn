@@ -16,7 +16,7 @@ public class goTimeScript : MonoBehaviour
         string time;
 
         gameOverTimeText.text = string.Format("Time  {0:00}:{1:00}:{2:00}", hours, minutes, seconds);
-        time = string.Format("Time  {0:00}:{1:00}:{2:00}", hours, minutes, seconds);
+        time = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
         gameOData.CollectTimeString(time);
         gameOData.CollectTimeRaw(hours, minutes, seconds);
     }
