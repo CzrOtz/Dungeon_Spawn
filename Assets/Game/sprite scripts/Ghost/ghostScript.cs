@@ -411,6 +411,8 @@ void DeadShake()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explosionRadius);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, damageRadius);
     }
 
 void GenerateImpulseWithCustomVelocity(Vector3 customVelocity)

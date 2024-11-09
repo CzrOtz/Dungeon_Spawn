@@ -222,8 +222,9 @@ public class cyclopsScript : MonoBehaviour
 
     void ExplodeEnemiesAway(Vector2 explosionPosition, float explosionRadius, float explosionForce, float damageRadius, float explosionDamage)
     {
-        LayerMask explosionLayerMask = LayerMask.GetMask("Enemy", "Hero");
-        Collider2D[] enemiesForForce = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius, explosionLayerMask);
+        // LayerMask explosionLayerMask = LayerMask.GetMask("Enemy", "Hero");
+        // Collider2D[] enemiesForForce = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius, explosionLayerMask);
+        Collider2D[] enemiesForForce = Physics2D.OverlapCircleAll(explosionPosition, explosionRadius);
 
         foreach (Collider2D enemy in enemiesForForce)
         {
@@ -231,7 +232,7 @@ public class cyclopsScript : MonoBehaviour
             Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
             if (rb != null && enemy.gameObject != this.gameObject)
             {
-                
+                Debug.Log("Explosion force applied to: " + enemy.name);
                 // Apply explosion force to the enemy's Rigidbody2D
                 Vector2 direction = (rb.position - explosionPosition).normalized;
                 rb.AddForce(direction * explosionForce, ForceMode2D.Impulse);
@@ -271,7 +272,11 @@ public class cyclopsScript : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explosionRadius);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, damageRadius);
     }
+
+    
 
     void DisableColliders()
     {
@@ -307,6 +312,8 @@ public class cyclopsScript : MonoBehaviour
             Debug.LogError("CinemachineImpulseSource not found on the object.");
         }
     }
+
+   
 }
 
 
