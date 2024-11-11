@@ -7,7 +7,6 @@ public class testDataScript : MonoBehaviour
 {
     public static testDataScript Instance { get; private set; }
     private DatabaseReference reference;
-    public bool isFirebaseInitialized { get; private set; } = false;
 
     void Awake()
     {
@@ -15,11 +14,22 @@ public class testDataScript : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeFirebase();
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    void Start()
+    {
+        if (FirebaseAuthManager.Instance != null)
+        {
+            FirebaseAuthManager.Instance.OnUserAuthenticated += InitializeFirebase;
+        }
+        else
+        {
+            Debug.LogError("FirebaseAuthManager instance not found in the scene.");
         }
     }
 
@@ -29,10 +39,8 @@ public class testDataScript : MonoBehaviour
         {
             if (task.IsCompleted)
             {
-                FirebaseApp app = FirebaseApp.DefaultInstance;
                 reference = FirebaseDatabase.DefaultInstance.RootReference;
-                isFirebaseInitialized = true;
-                
+                Debug.Log("Firebase Initialized and ready to use.");
             }
             else
             {
@@ -41,12 +49,11 @@ public class testDataScript : MonoBehaviour
         });
     }
 
-    // Method to send data to Firebase
     public void SendWinningDataToDatabase(WinningData winningData)
     {
-        if (!isFirebaseInitialized)
+        if (reference == null)
         {
-            Debug.LogError("Firebase is not initialized yet!");
+            Debug.LogError("Firebase database reference not initialized!");
             return;
         }
 
@@ -70,17 +77,18 @@ public class testDataScript : MonoBehaviour
 
     public DatabaseReference GetReference()
     {
-        if (isFirebaseInitialized)
+        if (reference != null)
         {
             return reference;
         }
         else
         {
-            Debug.LogError("Firebase not initialized yet!");
+            Debug.LogError("Firebase database reference not initialized!");
             return null;
         }
     }
 }
+
 
 
 

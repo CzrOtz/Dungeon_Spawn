@@ -53,17 +53,17 @@ public class UserNameScript : MonoBehaviour
 
     bool ValidateUsername(string username)
     {
-        if (username.Length < 3 || username.Length > 14)
+        if (username.Length < 5 || username.Length > 14)
         {
-            DisplayMessage("Username must be between 3 and 14 characters.");
+            DisplayMessage("Username must be between 5 and 14 characters.");
             return false;
         }
 
         foreach (char c in username)
         {
-            if (!char.IsLetterOrDigit(c) && "_*&^%$#@!".IndexOf(c) == -1)
+            if (!char.IsLetterOrDigit(c))
             {
-                DisplayMessage("Username contains invalid characters.");
+                DisplayMessage("Username can only contain letters and numbers.");
                 return false;
             }
         }

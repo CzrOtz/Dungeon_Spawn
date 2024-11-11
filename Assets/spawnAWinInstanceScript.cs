@@ -9,61 +9,39 @@ public class spawnAWinInstanceScript : MonoBehaviour
     public GameObject winInstancePrefab; // Prefab for each leaderboard entry
     public Transform container; // Parent container for win instances
     private DatabaseReference reference;
-    private testDataScript testDataScriptInstance;
 
     void Start()
     {
-        if (testDataScript.Instance != null && testDataScript.Instance.isFirebaseInitialized)
+        SetupReference();
+    }
+
+    void OnEnable()
+    {
+        SetupReference();
+        if (reference != null)
+        {
+            PopulateLeaderboard();
+        }
+        else
+        {
+            Debug.LogWarning("Firebase not initialized; will retry to populate leaderboard when ready.");
+        }
+    }
+
+    private void SetupReference()
+    {
+        if (testDataScript.Instance != null && testDataScript.Instance.GetReference() != null)
         {
             reference = testDataScript.Instance.GetReference().Child("winning_run");
-            PopulateLeaderboard();
         }
         else
         {
-            Debug.LogError("testDataScript instance not found or not initialized.");
-        }
-    }
-
-
-    private IEnumerator WaitForFirebaseInitialization()
-    {
-        
-        while (!testDataScriptInstance.isFirebaseInitialized)
-        {
-            yield return null;
-            
-        }
-
-        // Firebase is ready
-        reference = testDataScriptInstance.GetReference().Child("winning_run");
-        
-        
-        PopulateLeaderboard();
-    }
-
-    
-    void OnEnable() 
-    {
-        
-        
-        if (testDataScriptInstance != null && testDataScriptInstance.isFirebaseInitialized)
-        {
-            PopulateLeaderboard();
-        }
-        else if (testDataScriptInstance != null)
-        {
-            StartCoroutine(WaitForFirebaseInitialization());
-        }
-        else
-        {
-            Debug.Log("Step 3.5 --> testDataScript instance not found in the scene during OnEnable.");
+            Debug.LogError("testDataScript instance or database reference not available.");
         }
     }
 
     public void PopulateLeaderboard()
     {
-        
-        
         // Clear previous instances
         foreach (Transform child in container)
         {
@@ -72,13 +50,16 @@ public class spawnAWinInstanceScript : MonoBehaviour
 
         // Fetch data and populate
         FetchAndDisplayData();
-        
     }
 
     private void FetchAndDisplayData()
     {
-        
-    
+        if (reference == null)
+        {
+            Debug.LogError("Database reference not set.");
+            return;
+        }
+
         reference.GetValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsCompleted)
@@ -91,7 +72,7 @@ public class spawnAWinInstanceScript : MonoBehaviour
                     Debug.LogWarning("No data found in Firebase under 'winning_run'.");
                     return;
                 }
-            
+
                 foreach (DataSnapshot entry in snapshot.Children)
                 {
                     WinningData data = JsonUtility.FromJson<WinningData>(entry.GetRawJsonValue());
@@ -107,13 +88,10 @@ public class spawnAWinInstanceScript : MonoBehaviour
 
                 // Sort by points in descending order
                 winDataList.Sort((x, y) => y.points.CompareTo(x.points));
-                
 
                 // Spawn and populate each instance
                 for (int i = 0; i < winDataList.Count; i++)
                 {
-                    
-                
                     GameObject winInstance = Instantiate(winInstancePrefab, container);
                     if (winInstance == null)
                     {
@@ -125,21 +103,21 @@ public class spawnAWinInstanceScript : MonoBehaviour
                     if (instanceScript != null)
                     {
                         instanceScript.SetData(i + 1, winDataList[i]);
-                        
                     }
                     else
                     {
-                        Debug.LogError("winInstanceScript component is missing from the winInstancePrefab.");
+                        Debug.LogError("winInstanceScript component missing from winInstancePrefab.");
                     }
                 }
             }
             else
             {
-                Debug.LogError("Step 5.75 --> Failed to fetch leaderboard data: " + task.Exception);
+                Debug.LogError("Failed to fetch leaderboard data: " + task.Exception);
             }
         });
     }
-
 }
+
+
 
 
