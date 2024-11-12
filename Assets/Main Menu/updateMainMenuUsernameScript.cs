@@ -9,13 +9,13 @@ public class updateMainMenuUsernameScript : MonoBehaviour
     private string currentUsername;
     public testDataScript testDataScriptInstance;
 
-     private string lastCheckedUsername; // Store the last displayed username to detect changes
+    private string lastCheckedUsername;
 
     void Start()
     {
         testDataScriptInstance = FindObjectOfType<testDataScript>();
         InitializeUsername();
-        lastCheckedUsername = currentUsername; // Set the initial last checked username
+        lastCheckedUsername = currentUsername;
     }
 
     void InitializeUsername()
@@ -33,18 +33,20 @@ public class updateMainMenuUsernameScript : MonoBehaviour
 
     void Update()
     {
-        // Check if the username in PlayerPrefs has changed
         string updatedUsername = PlayerPrefs.GetString("currentUsername", "Not Set");
         if (updatedUsername != lastCheckedUsername)
         {
             currentUsername = updatedUsername;
             DisplayUsername();
-            lastCheckedUsername = currentUsername; // Update the last checked username
+            lastCheckedUsername = currentUsername;
         }
     }
 
     IEnumerator GenerateUniqueUsername()
     {
+        // Wait until Firebase is fully initialized in testDataScript
+        yield return new WaitUntil(() => testDataScriptInstance != null && testDataScriptInstance.isFirebaseInitialized);
+
         bool isUnique = false;
 
         while (!isUnique)
@@ -66,6 +68,10 @@ public class updateMainMenuUsernameScript : MonoBehaviour
 
         PlayerPrefs.SetString("currentUsername", currentUsername);
         PlayerPrefs.Save();
+
+        // Add the username to the database
+        testDataScriptInstance.GetReference().Child("users").Child(currentUsername).SetValueAsync(currentUsername);
+
         DisplayUsername();
     }
 

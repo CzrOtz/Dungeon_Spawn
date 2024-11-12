@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using Firebase.Database;
 using System.Collections;
+using System.Collections.Generic;
 
 public class UserNameScript : MonoBehaviour
 {
@@ -51,19 +52,41 @@ public class UserNameScript : MonoBehaviour
         }
     }
 
+    private HashSet<string> restrictedUserNames = new HashSet<string>
+    {
+        "Admin", "admin", "Moderator", "moderator", "christ", "Christ","jesus", "Jesus" ,"satan", "devil", "false", "God"
+    };
     bool ValidateUsername(string username)
     {
         if (username.Length < 5 || username.Length > 14)
         {
             DisplayMessage("Username must be between 5 and 14 characters.");
             return false;
+
         }
+
+        if (username.Contains(" "))
+        {
+            DisplayMessage("Username cannot contain spaces.");
+            return false;
+        }
+        
+       string lowerCaseUsername = username.ToLower();
+
+       foreach (string restrictedName in restrictedUserNames)
+         {
+              if (lowerCaseUsername.Contains(restrictedName.ToLower()))
+              {
+                DisplayMessage("Please choose something else");
+                return false;
+              }
+         }
 
         foreach (char c in username)
         {
-            if (!char.IsLetterOrDigit(c))
+            if (!char.IsLetterOrDigit(c) && c != '_')
             {
-                DisplayMessage("Username can only contain letters and numbers.");
+                DisplayMessage("Username can only contain letters, numbers, and underscores.");
                 return false;
             }
         }

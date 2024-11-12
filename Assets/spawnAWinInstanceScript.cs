@@ -12,31 +12,36 @@ public class spawnAWinInstanceScript : MonoBehaviour
 
     void Start()
     {
+        if (testDataScript.Instance != null && testDataScript.Instance.isFirebaseInitialized)
+        {
+            SetupReference();
+        }
+        else
+        {
+            Debug.LogWarning("Firebase not initialized; waiting for initialization...");
+            StartCoroutine(WaitForFirebaseInitialization());
+        }
+    }
+
+    private IEnumerator WaitForFirebaseInitialization()
+    {
+        while (testDataScript.Instance == null || !testDataScript.Instance.isFirebaseInitialized)
+        {
+            yield return null; // Wait until Firebase is initialized
+        }
         SetupReference();
     }
 
-    void OnEnable()
+    private void SetupReference()
     {
-        SetupReference();
+        reference = testDataScript.Instance.GetReference();
         if (reference != null)
         {
             PopulateLeaderboard();
         }
         else
         {
-            Debug.LogWarning("Firebase not initialized; will retry to populate leaderboard when ready.");
-        }
-    }
-
-    private void SetupReference()
-    {
-        if (testDataScript.Instance != null && testDataScript.Instance.GetReference() != null)
-        {
-            reference = testDataScript.Instance.GetReference().Child("winning_run");
-        }
-        else
-        {
-            Debug.LogError("testDataScript instance or database reference not available.");
+            Debug.LogError("Database reference not available.");
         }
     }
 
@@ -60,7 +65,7 @@ public class spawnAWinInstanceScript : MonoBehaviour
             return;
         }
 
-        reference.GetValueAsync().ContinueWithOnMainThread(task =>
+        reference.Child("winning_run").GetValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsCompleted)
             {
@@ -106,7 +111,7 @@ public class spawnAWinInstanceScript : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogError("winInstanceScript component missing from winInstancePrefab.");
+                        Debug.LogError("winInstanceScript component is missing from the winInstancePrefab.");
                     }
                 }
             }
@@ -117,6 +122,7 @@ public class spawnAWinInstanceScript : MonoBehaviour
         });
     }
 }
+
 
 
 
