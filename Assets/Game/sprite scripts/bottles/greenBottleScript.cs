@@ -36,14 +36,21 @@ public class greenBottleScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Hero"))
         {
-            hero.health += greenBottleHealthIncrease;
+
+            if (hero.health <= 200)
+            {
+                hero.health += greenBottleHealthIncrease;
+            }
+            else
+            {
+                hero.health += 5;
+            }
+
+
+
 
             heroRender.FlashGreen();
-            
-
             Destroy(gameObject);
-
-
         }
     }
 

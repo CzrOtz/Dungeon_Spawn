@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using Firebase.Database;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -44,11 +43,26 @@ public class UserNameScript : MonoBehaviour
 
     public void ChangeUsername()
     {
+        // Check if the last change was within the 30-minute limit
+        long lastChangeTimestamp = PlayerPrefs.GetInt("lastUsernameChange", 0);
+        long currentTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        if (currentTime - lastChangeTimestamp < 1800) // 1800 seconds = 30 minutes
+        {
+            DisplayMessage("You can only change your username once every 30 minutes.");
+            return;
+        }
+
         currentUsername = userNameInput.text;
+
         if (ValidateUsername(currentUsername))
         {
             PlayerPrefs.DeleteKey("currentUsername");
             StartCoroutine(ValidateAndSaveUsername());
+
+            // Update the timestamp of the last username change
+            PlayerPrefs.SetInt("lastUsernameChange", (int)currentTime);
+            PlayerPrefs.Save();
         }
     }
 

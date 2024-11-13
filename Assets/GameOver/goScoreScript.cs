@@ -10,7 +10,7 @@ public class goScoreScript : MonoBehaviour
     void Start()
     {
         int finalScore = scoreScript.score; // Access the static score
-        gameOverScoreText.text = "Score  " + finalScore.ToString();
+        gameOverScoreText.text = finalScore.ToString();
         gameOData.CollectScore(finalScore);
     }
 }

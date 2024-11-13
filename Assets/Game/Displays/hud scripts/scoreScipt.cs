@@ -8,6 +8,9 @@ public class scoreScript : MonoBehaviour
 
     void Start()
     {
+        //assure to clear out the score since it is static
+        score = 0;
+
         if (scoreText == null)
         {
             scoreText = GameObject.Find("Score").GetComponent<TMP_Text>();

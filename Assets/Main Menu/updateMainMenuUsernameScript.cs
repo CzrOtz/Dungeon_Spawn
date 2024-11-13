@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using Firebase.Database;
 using System.Collections;
 
 public class updateMainMenuUsernameScript : MonoBehaviour

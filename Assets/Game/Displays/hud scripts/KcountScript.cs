@@ -9,6 +9,9 @@ public class KcountScript : MonoBehaviour
 
     void Start()
     {
+        //clear out the kill count since it is static;
+        killCount = 0;
+
         killCountText = GetComponent<TMP_Text>();
         UpdateKillCountText();
     }

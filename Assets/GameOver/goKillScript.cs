@@ -11,7 +11,7 @@ public class goKillScript : MonoBehaviour
     {
         // Access the static killCount directly
         int finalKillCount = KcountScript.killCount;
-        gameOverKillCountText.text = "Kills  " + finalKillCount.ToString();
+        gameOverKillCountText.text = finalKillCount.ToString();
         gameOData.CollectKills(finalKillCount);
     }
 }

@@ -13,7 +13,7 @@ public class blueBottleScript : MonoBehaviour
     
     private heroScript hero;
     private heroRenderScript heroRender;
-    private float increaseSpeedRate = 1.10f;
+    private float increaseSpeedRate = 1.07f;
 
     // Start is called before the first frame update
     void Start()
@@ -42,7 +42,7 @@ public class blueBottleScript : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Hero"))
         {
-            if (hero.speed > 95)
+            if (hero.speed > 125)
             {
                 hero.speed += 0.2f;  // Slight increment if hero speed is already high
             }

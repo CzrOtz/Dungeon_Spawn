@@ -36,13 +36,19 @@ public class DifficultyScript : MonoBehaviour
                 elapsedTime = 0f;
 
                 // Increase the level
-                levelScript.IncreaseLevel();
+                
             
 
                 // Increase the difficulty for all entities
-                IncreaseGhostDifficulty();
-                IncreaseCyclopsDifficulty();
-                IncreaseCrabDifficulty();
+                
+
+                if (levelScript.level <= 15)
+                {
+                    levelScript.IncreaseLevel();
+                    IncreaseGhostDifficulty();
+                    IncreaseCyclopsDifficulty();
+                    IncreaseCrabDifficulty();
+                }
             }
         }
  

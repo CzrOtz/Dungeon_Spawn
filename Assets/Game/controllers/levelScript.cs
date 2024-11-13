@@ -19,7 +19,7 @@ public class levelScript : MonoBehaviour
     public void IncreaseLevel()
     {
         //boss is false when its true then we dont hwant this anymore
-        if (winScript.bossIsHere == false)
+        if (winScript.bossIsHere == false && level <= 15)
         {
             level++;
             UpdateLevelDisplay();
@@ -30,7 +30,7 @@ public class levelScript : MonoBehaviour
     private void UpdateLevelDisplay()
     {
         // Ensure that the levelText is assigned and update the displayed text
-        if (levelText != null)
+        if (levelText != null && level <= 15)
         {
             levelText.text = "LvL: " + level.ToString();
             levelText.gameObject.SetActive(true); // Ensure the text is visible
@@ -38,7 +38,10 @@ public class levelScript : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Level text UI component is missing!");
+
+            levelText.text = "Max LvL Reached";
+            levelText.gameObject.SetActive(true); // Hide the text if it's missing
+            StartCoroutine(HideLevelTextAfterDelay());
         }
     }
 
